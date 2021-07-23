@@ -7,3 +7,12 @@ Supported image formats:
 - `*.blp`
 - `*.tga`
 
+Suppoerted war3 model formats:
+
+- `*.mdx`
+
+## thanks
+
+- [war3-model](https://github.com/4eb0da/war3-model)
+- [mdx-m3-viewer](https://github.com/flowtsohg/mdx-m3-viewer.git)
+- [tgajs](https://github.com/vthibault/jsTGALoader)

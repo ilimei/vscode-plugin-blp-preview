@@ -6,6 +6,8 @@
 import * as vscode from 'vscode';
 import * as nls from 'vscode-nls';
 import * as fs from "fs";
+import * as path from "path";
+import * as http from "https";
 import { Disposable } from './dispose';
 import { SizeStatusBarEntry } from './sizeStatusBarEntry';
 import { Scale, ZoomStatusBarEntry } from './zoomStatusBarEntry';
@@ -14,6 +16,28 @@ import { BinarySizeStatusBarEntry } from './binarySizeStatusBarEntry';
 
 const localize = nls.loadMessageBundle();
 
+
+function request(url: string, cb: (buf: Buffer, ext: string) => void) {
+	http.request(url, res => {
+		const chunks = [];
+		console.info(res.statusCode);
+		if (res.statusCode === 303) {
+			return request(res.headers['location'], cb);
+		}
+		if (res.statusCode !== 200) {
+			cb(null, null);
+			return;
+		}
+		res.on('data', function (chunk) {
+			chunks.push(chunk);
+		});
+
+		//the whole response has been received, so we just print it out here
+		res.on('end', function () {
+			cb(Buffer.concat(chunks), url.split(/\./).pop());
+		});
+	}).end();
+}
 
 export class PreviewManager implements vscode.CustomReadonlyEditorProvider {
 
@@ -64,7 +88,7 @@ export class PreviewManager implements vscode.CustomReadonlyEditorProvider {
 	}
 }
 
-const enum PreviewState {
+enum PreviewState {
 	Disposed,
 	Visible,
 	Active,
@@ -112,6 +136,25 @@ class Preview extends Disposable {
 						this.webviewEditor.webview.postMessage({ type: 'imgSrc', extName: extName, data: buf });
 						break;
 					}
+				case 'load-mdx': {
+					this.webviewEditor.webview.postMessage({ type: 'mdxData', extName: extName, data: buf });
+					break;
+				}
+				case 'load-blp': {
+					const file = this.findFile(path.dirname(imgPath), message.data);
+					if (file) {
+						this.webviewEditor.webview.postMessage({ type: 'blpData', source: message.data, data: fs.readFileSync(file).valueOf().buffer });
+					} else {
+						console.info("request", `https://www.hiveworkshop.com/casc-contents?path=${encodeURIComponent(message.data)}`);
+						// https://www.hiveworkshop.com/casc-contents?path=$%7Bsrc%7D 尝试下载
+						request(`https://www.hiveworkshop.com/casc-contents?path=${encodeURIComponent(message.data)}`, (buf, ext) => {
+							if (buf) {
+								this.webviewEditor.webview.postMessage({ type: 'blpData', source: message.data, ext, data: buf.valueOf().buffer });
+							}
+						});
+					}
+					break;
+				}
 				case 'size':
 					{
 						this._imageSize = message.value;
@@ -175,6 +218,26 @@ class Preview extends Disposable {
 		this.webviewEditor.webview.postMessage({ type: 'setActive', value: this.webviewEditor.active });
 	}
 
+	/**
+	 * 递归向上查找文件
+	 * @param startPath 
+	 * @param fileName 
+	 * @returns 
+	 */
+	private findFile(startPath: string, fileName: string) {
+		const files = fs.readdirSync(startPath);
+		const file = files.find(v => v.toLowerCase().endsWith(fileName.toLowerCase()));
+		if (file) {
+			return path.resolve(startPath, file);
+		}
+		const next = path.dirname(startPath);
+		console.info('startPath', startPath, 'fileName', fileName);
+		if (next === startPath) {
+			return null;
+		}
+		return this.findFile(path.dirname(startPath), fileName);
+	}
+
 	public zoomIn() {
 		if (this._previewState === PreviewState.Active) {
 			this.webviewEditor.webview.postMessage({ type: 'zoomIn' });
@@ -220,8 +283,47 @@ class Preview extends Disposable {
 		};
 
 		const nonce = getNonce();
-
 		const cspSource = this.webviewEditor.webview.cspSource;
+
+		if (this.resource.path.endsWith(".mdx")) {
+			return /* html */`<!DOCTYPE html>
+			<html lang="en">
+			<head>
+				<meta charset="UTF-8">
+			
+				<!-- Disable pinch zooming -->
+				<meta name="viewport"
+					content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+			
+				<title>Image Preview</title>
+			
+				<link rel="stylesheet" href="${escapeAttribute(this.extensionResource('/media/preview.css'))}" type="text/css" media="screen" nonce="${nonce}">
+			
+				<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data: ${cspSource}; script-src 'nonce-${nonce}'; style-src ${cspSource} 'nonce-${nonce}';">
+				<meta id="image-preview-settings" data-settings="${escapeAttribute(JSON.stringify(settings))}">
+			</head>
+			<body class="container image scale-to-fit loading">
+				<div class="container" dropzone="copy">
+					<div class="inner">
+						<canvas id="canvas" width="300" height="300"></canvas>
+					</div>
+					<div class="controls">
+						<label>动作列表 <select id="select"><option>None</option></select></label>
+					</div>
+				</div>
+				<script type="text/javascript" nonce="${nonce}">
+					window.module = {
+						exports: {},
+					};
+					console.info(window.module);
+				</script>
+				<script src="${escapeAttribute(this.extensionResource('/media/viewer.min.js'))}" nonce="${nonce}"></script>
+				<script src="${escapeAttribute(this.extensionResource('/media/modelPreview.js'))}" nonce="${nonce}"></script>
+			</body>
+			</html>`;
+		}
+
+
 		return /* html */`<!DOCTYPE html>
 <html lang="en">
 <head>

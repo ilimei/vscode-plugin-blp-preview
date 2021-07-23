@@ -1,9 +1,4 @@
 # Change Log
 
-All notable changes to the "blp-preview" extension will be documented in this file.
-
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
-
-## [Unreleased]
-
-- Initial release
+[0.0.2]
+add mdx and mdl support
