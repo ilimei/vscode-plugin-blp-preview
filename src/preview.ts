@@ -226,9 +226,19 @@ class Preview extends Disposable {
 	 */
 	private findFile(startPath: string, fileName: string) {
 		const files = fs.readdirSync(startPath);
-		const file = files.find(v => v.toLowerCase().endsWith(fileName.toLowerCase()));
-		if (file) {
-			return path.resolve(startPath, file);
+		if (fileName.indexOf("\\") > 0) {
+			const findFolder = fileName.split(/\\/)[0];
+			if (findFolder) {
+				const file = files.find(v => v.toLowerCase().endsWith(findFolder.toLowerCase()));
+				if (file && fs.existsSync(path.resolve(startPath, fileName))) {
+					return path.resolve(startPath, fileName);
+				}
+			}
+		} else {
+			const file = files.find(v => v.toLowerCase().endsWith(fileName.toLowerCase()));
+			if (file) {
+				return path.resolve(startPath, file);
+			}
 		}
 		const next = path.dirname(startPath);
 		console.info('startPath', startPath, 'fileName', fileName);
