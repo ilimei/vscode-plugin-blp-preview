@@ -1,8 +1,8 @@
 {
 	"name": "blp-preview",
 	"displayName": "blp-preview",
-	"description": "blp1 image preview",
-	"version": "0.0.3",
+	"description": "blp1 image preview, tag image preview, mdx model preview",
+	"version": "0.0.4",
 	"publisher": "hugehardzhang",
 	"icon": "icon.png",
 	"engines": {

@@ -340,7 +340,7 @@
 		switch (e.data.type) {
 			case 'imgSrc':
 				try {
-					if (e.data.extName === 'blp') {
+					if (e.data.extName.toLowerCase() === 'blp') {
 						const blp = decode(e.data.data);
 						const canvas = document.createElement('canvas');
 						// resize it to the size of our ImageBitmap

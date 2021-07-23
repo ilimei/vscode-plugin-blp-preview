@@ -295,7 +295,7 @@ class Preview extends Disposable {
 		const nonce = getNonce();
 		const cspSource = this.webviewEditor.webview.cspSource;
 
-		if (this.resource.path.endsWith(".mdx")) {
+		if (this.resource.path.toLowerCase().endsWith(".mdx")) {
 			return /* html */`<!DOCTYPE html>
 			<html lang="en">
 			<head>
