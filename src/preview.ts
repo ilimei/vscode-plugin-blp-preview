@@ -343,6 +343,7 @@ class Preview extends Disposable {
 					</div>
 					<div class="controls">
 						<label>动作列表 <select id="select"><option>None</option></select></label>
+						<label>速度 <input type="range" id="volume" name="volume" value="10" min="0" max="80"></label>
 					</div>
 				</div>
 				<script type="text/javascript" nonce="${nonce}">

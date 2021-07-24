@@ -34,6 +34,11 @@ label {
 }
 input {
     vertical-align: middle;
+    outline: none;
+}
+
+a:focus, input:focus, select:focus, textarea:focus {
+    outline: none;
 }
 
 .container {

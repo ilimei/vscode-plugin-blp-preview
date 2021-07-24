@@ -78,27 +78,29 @@ function encode(html) {
 }
 
 function setAnimationList(model) {
-    console.info(model);
     let list: any[] = model.sequences.map(seq => seq.name);
 
     if (list.length === 0) {
         list = ['None'];
     }
 
-    console.info(list);
-
     let select = document.getElementById('select') as HTMLSelectElement;
     select.innerHTML = list.map((item, index) => `<option value="${index}">${encode(item)}</option>`).join('');
 }
 
-
 // The viewer has the update(), startFrame(), render(), and updateAndRender() functions.
 // Generally speaking, you will want a simple never ending loop like the one that follows, but who knows. The control is in your hands.
-(function step() {
+let previousTimeStamp: number;
+function step(timestamp: number) {
     requestAnimationFrame(step);
-
-    viewer.updateAndRender();
-})();
+    if (!previousTimeStamp) {
+        previousTimeStamp = timestamp;
+        return;
+    }
+    viewer.updateAndRender(timestamp - previousTimeStamp);
+    previousTimeStamp = timestamp;
+}
+requestAnimationFrame(step);
 
 
 vscode.postMessage({
@@ -179,5 +181,11 @@ function initControls() {
     let select = document.getElementById('select') as HTMLSelectElement;
     select.addEventListener('input', () => {
         modelRenderer.setSequence(parseInt(select.value, 10));
+    });
+    let volume = document.getElementById('volume') as HTMLSelectElement;
+    volume.addEventListener('input', () => {
+        if (modelRenderer) {
+            modelRenderer.timeScale = parseInt(volume.value, 10) / 10;
+        }
     });
 }
