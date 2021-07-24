@@ -8,3 +8,6 @@ fix mdx texture container folder not show
 
 [0.0.4]
 support file extension upcase
+
+[0.0.5]
+add configure blpView.mpqLocation to support load texture from it 

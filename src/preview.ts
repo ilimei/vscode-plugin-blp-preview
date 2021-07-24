@@ -12,6 +12,7 @@ import { Disposable } from './dispose';
 import { SizeStatusBarEntry } from './sizeStatusBarEntry';
 import { Scale, ZoomStatusBarEntry } from './zoomStatusBarEntry';
 import { BinarySizeStatusBarEntry } from './binarySizeStatusBarEntry';
+import MpqArchive from "./mpqReader/archive";
 
 
 const localize = nls.loadMessageBundle();
@@ -45,13 +46,27 @@ export class PreviewManager implements vscode.CustomReadonlyEditorProvider {
 
 	private readonly _previews = new Set<Preview>();
 	private _activePreview: Preview | undefined;
+	private mpqManager: MpqArchive;
 
 	constructor(
 		private readonly extensionRoot: vscode.Uri,
 		private readonly sizeStatusBarEntry: SizeStatusBarEntry,
 		private readonly binarySizeStatusBarEntry: BinarySizeStatusBarEntry,
 		private readonly zoomStatusBarEntry: ZoomStatusBarEntry,
-	) { }
+	) {
+		const data = vscode.workspace.getConfiguration("blpPreview");
+		if (data && data.mpqLocation) {
+			if (fs.existsSync(data.mpqLocation)) {
+				this.mpqManager = new MpqArchive();
+				try {
+					this.mpqManager.load(data.mpqLocation, true);
+				} catch (e) {
+					this.mpqManager = null;
+					vscode.window.showErrorMessage("mpq location is not a mpq file!");
+				}
+			}
+		}
+	}
 
 	public async openCustomDocument(uri: vscode.Uri) {
 		return { uri, dispose: () => { } };
@@ -61,7 +76,7 @@ export class PreviewManager implements vscode.CustomReadonlyEditorProvider {
 		document: vscode.CustomDocument,
 		webviewEditor: vscode.WebviewPanel,
 	): Promise<void> {
-		const preview = new Preview(this.extensionRoot, document.uri, webviewEditor, this.sizeStatusBarEntry, this.binarySizeStatusBarEntry, this.zoomStatusBarEntry);
+		const preview = new Preview(this.extensionRoot, document.uri, this.mpqManager, webviewEditor, this.sizeStatusBarEntry, this.binarySizeStatusBarEntry, this.zoomStatusBarEntry);
 		this._previews.add(preview);
 		this.setActivePreview(preview);
 
@@ -108,6 +123,7 @@ class Preview extends Disposable {
 	constructor(
 		private readonly extensionRoot: vscode.Uri,
 		private readonly resource: vscode.Uri,
+		private readonly mpqManager: MpqArchive,
 		private readonly webviewEditor: vscode.WebviewPanel,
 		private readonly sizeStatusBarEntry: SizeStatusBarEntry,
 		private readonly binarySizeStatusBarEntry: BinarySizeStatusBarEntry,
@@ -145,6 +161,14 @@ class Preview extends Disposable {
 					if (file) {
 						this.webviewEditor.webview.postMessage({ type: 'blpData', source: message.data, data: fs.readFileSync(file).valueOf().buffer });
 					} else {
+						if (this.mpqManager) {
+							const buf = mpqManager.get(message.data);
+							console.info(`find mpq`, message.data, buf)
+							if (buf) {
+								this.webviewEditor.webview.postMessage({ type: 'blpData', source: message.data, data: buf.valueOf().buffer });
+								break;
+							}
+						}
 						console.info("request", `https://www.hiveworkshop.com/casc-contents?path=${encodeURIComponent(message.data)}`);
 						// https://www.hiveworkshop.com/casc-contents?path=$%7Bsrc%7D 尝试下载
 						request(`https://www.hiveworkshop.com/casc-contents?path=${encodeURIComponent(message.data)}`, (buf, ext) => {

@@ -2,7 +2,7 @@
 	"name": "blp-preview",
 	"displayName": "blp-preview",
 	"description": "blp1 image preview, tag image preview, mdx model preview",
-	"version": "0.0.4",
+	"version": "0.0.5",
 	"publisher": "hugehardzhang",
 	"icon": "icon.png",
 	"engines": {
@@ -22,20 +22,15 @@
 	],
 	"main": "./dist/extension.js",
 	"contributes": {
-		"customEditors": [
-			{
-				"viewType": "blpPreview.previewEditor",
-				"displayName": "blp-preview",
-				"priority": "default",
-				"selector": [
-					{
-						"filenamePattern": "*.{blp,tga,mdx,mdl}"
-					}
-				]
-			}
-		],
-		"commands": [
-			{
+		"customEditors": [{
+			"viewType": "blpPreview.previewEditor",
+			"displayName": "blp-preview",
+			"priority": "default",
+			"selector": [{
+				"filenamePattern": "*.{blp,tga,mdx,mdl}"
+			}]
+		}],
+		"commands": [{
 				"command": "blpPreview.zoomIn",
 				"title": "blpPreview.zoomIn",
 				"category": "Blp Preview"
@@ -47,8 +42,7 @@
 			}
 		],
 		"menus": {
-			"commandPalette": [
-				{
+			"commandPalette": [{
 					"command": "blpPreview.zoomIn",
 					"when": "activeCustomEditorId == 'blpPreview.previewEditor'",
 					"group": "1_blpPreview"
@@ -59,6 +53,17 @@
 					"group": "1_blpPreview"
 				}
 			]
+		},
+		"configuration": {
+			"type": "object",
+			"title": "blpPreview configuration",
+			"properties": {
+				"blpPreview.mpqLocation": {
+					"type": "string",
+					"default": "",
+					"description": "please set mpq file location use to show model texture."
+				}
+			}
 		}
 	},
 	"scripts": {
