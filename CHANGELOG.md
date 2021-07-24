@@ -11,3 +11,6 @@ support file extension upcase
 
 [0.0.5]
 add configure blpView.mpqLocation to support load texture from it 
+
+[0.0.6]
+add speed scale control
