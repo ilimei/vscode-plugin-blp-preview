@@ -90,6 +90,7 @@ export default class MpqArchive {
     if(!block) {
       return null;
     }
+    console.info(hash, block);
     const blpBuffer = Buffer.alloc(block.normalSize);
     fs.readSync(this.fd, blpBuffer, 0, blpBuffer.length, block.offset);
     return blpBuffer;
@@ -99,3 +100,6 @@ export default class MpqArchive {
 // const archive = new MpqArchive();
 
 // archive.load("D:\\Warcraft III\\war3.mpq", true);
+
+// const buf = archive.get('ui\\framedef\\ui\\simpleinfopanel.fdf ');
+// console.info(buf);

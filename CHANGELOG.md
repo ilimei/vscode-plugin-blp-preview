@@ -14,3 +14,9 @@ add configure blpView.mpqLocation to support load texture from it
 
 [0.0.6]
 add speed scale control
+
+[0.0.7]
+support tga texture for model view
+
+[0.0.8]
+fix tuxture load mutil times bug

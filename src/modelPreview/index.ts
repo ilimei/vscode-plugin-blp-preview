@@ -44,6 +44,8 @@ viewer.addHandler(handlers.mdx);
 viewer.addHandler(handlers.blp);
 // Add the DDS handler.
 viewer.addHandler(handlers.dds);
+// Add the TGA handler.
+viewer.addHandler(handlers.tga);
 
 const imgPromiseMap = {};
 
@@ -52,11 +54,17 @@ const imgPromiseMap = {};
 // This can be in the form of an URL string, or direct sources from memory (e.g. a previously loaded ArrayBuffer).
 function pathSolver(src: string) {
     console.info(src);
+    if(imgPromiseMap[src]) {
+        return imgPromiseMap[src].promise;    
+    }
     if (src.endsWith(".mdx")) {
-        return new Promise((resolve) => {
-            resolve(new handlers.mdx.resource(modelArrayBuffer, { viewer: viewer, pathSolver }));
-        });
-    } else if (src.endsWith(".blp")) {
+        imgPromiseMap[src] = {
+            promise: new Promise((resolve) => {
+                resolve(new handlers.mdx.resource(modelArrayBuffer, { viewer: viewer, pathSolver }));
+            })
+        };
+        return imgPromiseMap[src].promise;
+    } else if (src.endsWith(".blp") || src.endsWith(".tga")) {
         const p = {} as any;
         p.promise = new Promise((resolve) => {
             p.resolve = resolve;
@@ -158,8 +166,13 @@ window.addEventListener('message', async e => {
             if (imgPromiseMap[e.data.source]) {
                 try {
                     let handler = viewer.detectFormat(e.data.data);
+                    console.info(e.data.data, handler, e.data.source);
                     if (handler) {
                         imgPromiseMap[e.data.source].resolve(new handler.resource(e.data.data, { viewer: viewer, pathSolver }));
+                        return;
+                    }
+                    if(e.data.source.endsWith('.tga')) {
+                        imgPromiseMap[e.data.source].resolve(new handlers.tga.resource(e.data.data, { viewer: viewer, pathSolver }));
                         return;
                     }
                     if (e.data.ext && e.data.ext === 'dds') {

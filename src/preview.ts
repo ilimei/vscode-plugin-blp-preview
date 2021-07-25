@@ -163,7 +163,7 @@ class Preview extends Disposable {
 					} else {
 						if (this.mpqManager) {
 							const buf = mpqManager.get(message.data);
-							console.info(`find mpq`, message.data, buf)
+							console.info(`find mpq`, message.data, buf);
 							if (buf) {
 								this.webviewEditor.webview.postMessage({ type: 'blpData', source: message.data, data: buf.valueOf().buffer });
 								break;
