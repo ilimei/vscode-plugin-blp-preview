@@ -20,3 +20,6 @@ support tga texture for model view
 
 [0.0.8]
 fix tuxture load mutil times bug
+
+[0.0.9]
+remove confict whit image preview

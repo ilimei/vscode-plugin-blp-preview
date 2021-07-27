@@ -12,7 +12,7 @@ const localize = nls.loadMessageBundle();
 export class SizeStatusBarEntry extends PreviewStatusBarEntry {
 
 	constructor() {
-		super('status.imagePreview.size', localize('sizeStatusBar.name', "Image Size"), vscode.StatusBarAlignment.Right, 101 /* to the left of editor status (100) */);
+		super('status.blpPreview.size', localize('sizeStatusBar.name', "Image Size"), vscode.StatusBarAlignment.Right, 101 /* to the left of editor status (100) */);
 	}
 
 	public show(owner: string, text: string) {

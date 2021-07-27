@@ -99,7 +99,7 @@ export class PreviewManager implements vscode.CustomReadonlyEditorProvider {
 	}
 
 	private setPreviewActiveContext(value: boolean) {
-		vscode.commands.executeCommand('setContext', 'imagePreviewFocus', value);
+		vscode.commands.executeCommand('setContext', 'blpPreviewFocus', value);
 	}
 }
 
