@@ -23,3 +23,6 @@ fix tuxture load mutil times bug
 
 [0.0.9]
 remove confict whit image preview
+
+[0.1.1]
+fix bugs

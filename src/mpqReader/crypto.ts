@@ -47,7 +47,7 @@ export default class MpqCrypto {
     return seed1 >>> 0;
   }
 
-  decryptBlock(data: Uint8Array | Uint32Array, key: number) {
+  decryptBlock<T extends Uint8Array | Uint32Array>(data: T, key: number): T {
     let cryptTable = this.cryptTable;
     let seed = 0xEEEEEEEE;
     let bytes = new Uint8Array(data.buffer, data.byteOffset, data.byteLength);

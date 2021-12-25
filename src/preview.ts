@@ -12,7 +12,8 @@ import { Disposable } from './dispose';
 import { SizeStatusBarEntry } from './sizeStatusBarEntry';
 import { Scale, ZoomStatusBarEntry } from './zoomStatusBarEntry';
 import { BinarySizeStatusBarEntry } from './binarySizeStatusBarEntry';
-import MpqArchive from "./mpqReader/archive";
+import ArchiveManager from "./mpqReader/manager";
+import Message from './Message';
 
 
 const localize = nls.loadMessageBundle();
@@ -46,7 +47,7 @@ export class PreviewManager implements vscode.CustomReadonlyEditorProvider {
 
 	private readonly _previews = new Set<Preview>();
 	private _activePreview: Preview | undefined;
-	private mpqManager: MpqArchive;
+	private mpqManager: ArchiveManager;
 
 	constructor(
 		private readonly extensionRoot: vscode.Uri,
@@ -57,13 +58,12 @@ export class PreviewManager implements vscode.CustomReadonlyEditorProvider {
 		const data = vscode.workspace.getConfiguration("blpPreview");
 		if (data && data.mpqLocation) {
 			if (fs.existsSync(data.mpqLocation)) {
-				this.mpqManager = new MpqArchive();
-				try {
-					this.mpqManager.load(data.mpqLocation, true);
-				} catch (e) {
+				this.mpqManager = new ArchiveManager();
+				this.mpqManager.load(data.mpqLocation).catch(e => {
 					this.mpqManager = null;
+					console.error(e);
 					vscode.window.showErrorMessage("mpq location is not a mpq file!");
-				}
+				});
 			}
 		}
 	}
@@ -117,25 +117,24 @@ class Preview extends Disposable {
 	private _imageSize: string | undefined;
 	private _imageBinarySize: number | undefined;
 	private _imageZoom: Scale | undefined;
+	private _message: Message;
 
 	private readonly emptyPngDataUri = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAEElEQVR42gEFAPr/AP///wAI/AL+Sr4t6gAAAABJRU5ErkJggg==';
 
 	constructor(
 		private readonly extensionRoot: vscode.Uri,
 		private readonly resource: vscode.Uri,
-		private readonly mpqManager: MpqArchive,
+		private readonly mpqManager: ArchiveManager,
 		private readonly webviewEditor: vscode.WebviewPanel,
 		private readonly sizeStatusBarEntry: SizeStatusBarEntry,
 		private readonly binarySizeStatusBarEntry: BinarySizeStatusBarEntry,
 		private readonly zoomStatusBarEntry: ZoomStatusBarEntry,
 	) {
 		super();
-		const imgPath = resource.fsPath;
-		const buf = fs.readFileSync(imgPath).valueOf().buffer;
-		const extName = imgPath.split(/\./g).pop();
 		const resourceRoot = resource.with({
 			path: resource.path.replace(/\/[^\/]+?\.\w+$/, '/'),
 		});
+		this._message = new Message(this.webviewEditor.webview, mpqManager, resource, resourceRoot);
 
 		webviewEditor.webview.options = {
 			enableScripts: true,
@@ -146,39 +145,8 @@ class Preview extends Disposable {
 		};
 
 		this._register(webviewEditor.webview.onDidReceiveMessage(message => {
+			this._message.onMessgae(message);
 			switch (message.type) {
-				case 'load':
-					{
-						this.webviewEditor.webview.postMessage({ type: 'imgSrc', extName: extName, data: buf });
-						break;
-					}
-				case 'load-mdx': {
-					this.webviewEditor.webview.postMessage({ type: 'mdxData', extName: extName, data: buf });
-					break;
-				}
-				case 'load-blp': {
-					const file = this.findFile(path.dirname(imgPath), message.data);
-					if (file) {
-						this.webviewEditor.webview.postMessage({ type: 'blpData', source: message.data, data: fs.readFileSync(file).valueOf().buffer });
-					} else {
-						if (this.mpqManager) {
-							const buf = mpqManager.get(message.data);
-							console.info(`find mpq`, message.data, buf);
-							if (buf) {
-								this.webviewEditor.webview.postMessage({ type: 'blpData', source: message.data, data: buf.valueOf().buffer });
-								break;
-							}
-						}
-						console.info("request", `https://www.hiveworkshop.com/casc-contents?path=${encodeURIComponent(message.data)}`);
-						// https://www.hiveworkshop.com/casc-contents?path=$%7Bsrc%7D 尝试下载
-						request(`https://www.hiveworkshop.com/casc-contents?path=${encodeURIComponent(message.data)}`, (buf, ext) => {
-							if (buf) {
-								this.webviewEditor.webview.postMessage({ type: 'blpData', source: message.data, ext, data: buf.valueOf().buffer });
-							}
-						});
-					}
-					break;
-				}
 				case 'size':
 					{
 						this._imageSize = message.value;
@@ -343,6 +311,7 @@ class Preview extends Disposable {
 					</div>
 					<div class="controls">
 						<label>动作列表 <select id="select"><option>None</option></select></label>
+						<label>队伍颜色 <select id="teamcolor"><option>None</option></select></label>
 						<label>速度 <input type="range" id="volume" name="volume" value="10" min="0" max="80"></label>
 					</div>
 				</div>
@@ -350,8 +319,9 @@ class Preview extends Disposable {
 					window.module = {
 						exports: {},
 					};
-					console.info(window.module);
+					window.vscode = acquireVsCodeApi();
 				</script>
+				<script src="${escapeAttribute(this.extensionResource('/media/message.js'))}" nonce="${nonce}"></script>
 				<script src="${escapeAttribute(this.extensionResource('/media/viewer.min.js'))}" nonce="${nonce}"></script>
 				<script src="${escapeAttribute(this.extensionResource('/media/modelPreview.js'))}" nonce="${nonce}"></script>
 			</body>
@@ -381,6 +351,13 @@ class Preview extends Disposable {
 		<p>${localize('preview.imageLoadError', "An error occurred while loading the image.")}</p>
 		<a href="#" class="open-file-link">${localize('preview.imageLoadErrorLink', "Open file using VS Code's standard text/binary editor?")}</a>
 	</div>
+	<script type="text/javascript" nonce="${nonce}">
+		window.module = {
+			exports: {},
+		};
+		window.vscode = acquireVsCodeApi();
+	</script>
+	<script src="${escapeAttribute(this.extensionResource('/media/message.js'))}" nonce="${nonce}"></script>
 	<script src="${escapeAttribute(this.extensionResource('/media/jpgDecoder.js'))}" nonce="${nonce}"></script>
 	<script src="${escapeAttribute(this.extensionResource('/media/binReader.js'))}" nonce="${nonce}"></script>
 	<script src="${escapeAttribute(this.extensionResource('/media/tga.js'))}" nonce="${nonce}"></script>

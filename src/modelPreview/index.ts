@@ -1,14 +1,11 @@
 import { setupCamera } from "./camera";
 
-const handlers = ModelViewer.default.viewer.handlers;
-const common = ModelViewer.default.common;
+const handlers = ModelViewer.viewer.handlers;
+const common = ModelViewer.common;
 const glMatrix = common.glMatrix;
 let modelArrayBuffer: ArrayBuffer = null;
 const vec3 = glMatrix.vec3;
 const quat = glMatrix.quat;
-
-// @ts-ignore
-const vscode = acquireVsCodeApi();
 
 let canvas = document.getElementById('canvas') as HTMLCanvasElement;
 
@@ -16,7 +13,10 @@ canvas.width = 800;
 canvas.height = 600;
 
 // Create the viewer!
-let viewer = new ModelViewer.default.viewer.ModelViewer(canvas);
+let viewer = new ModelViewer.viewer.ModelViewer(canvas);
+viewer.debugRenderMode = ModelViewer.viewer.DebugRenderMode.None;
+
+console.info('model', viewer, ModelViewer);
 
 // Create a new scene. Each scene has its own camera, and a list of things to render.
 let scene = viewer.addScene();
@@ -47,40 +47,6 @@ viewer.addHandler(handlers.dds);
 // Add the TGA handler.
 viewer.addHandler(handlers.tga);
 
-const imgPromiseMap = {};
-
-// A path solver is used for every load call.
-// Given a possibly relative source, it should return the actual source to load from.
-// This can be in the form of an URL string, or direct sources from memory (e.g. a previously loaded ArrayBuffer).
-function pathSolver(src: string) {
-    console.info(src);
-    if(imgPromiseMap[src]) {
-        return imgPromiseMap[src].promise;    
-    }
-    if (src.endsWith(".mdx")) {
-        imgPromiseMap[src] = {
-            promise: new Promise((resolve) => {
-                resolve(new handlers.mdx.resource(modelArrayBuffer, { viewer: viewer, pathSolver }));
-            })
-        };
-        return imgPromiseMap[src].promise;
-    } else if (src.endsWith(".blp") || src.endsWith(".tga")) {
-        const p = {} as any;
-        p.promise = new Promise((resolve) => {
-            p.resolve = resolve;
-            vscode.postMessage({
-                type: 'load-blp',
-                data: src,
-            });
-        });
-        imgPromiseMap[src] = p;
-        return p.promise;
-    }
-    return 'resources/' + src;
-}
-
-
-
 function encode(html) {
     return html.replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
@@ -93,6 +59,12 @@ function setAnimationList(model) {
     }
 
     let select = document.getElementById('select') as HTMLSelectElement;
+    select.innerHTML = list.map((item, index) => `<option value="${index}">${encode(item)}</option>`).join('');
+}
+
+function setTeamColor() {
+    const list = ['红色', '蓝色', '青色', '紫色', '黄色', '橙色', '绿色', '粉色', '灰色'];
+    let select = document.getElementById('teamcolor') as HTMLSelectElement;
     select.innerHTML = list.map((item, index) => `<option value="${index}">${encode(item)}</option>`).join('');
 }
 
@@ -110,90 +82,62 @@ function step(timestamp: number) {
 }
 requestAnimationFrame(step);
 
-
-vscode.postMessage({
-    type: 'load-mdx',
-});
+// @ts-ignore
+window.fetch = async function (path: string) {
+    console.info('fetch', path);
+    if (path.toLowerCase().endsWith('mdx')) {
+        const { buf } = await message.load();
+        return {
+            ok: true,
+            arrayBuffer: () => buf,
+        };
+    } else if (path.toLowerCase().endsWith('.blp') || path.toLowerCase().endsWith('.tga') || path.toLowerCase().endsWith('.dds')) {
+        const buf = await message.loadBlp(path);
+        return {
+            ok: true,
+            arrayBuffer: () => buf,
+        };
+    }
+    return new Promise(() => { });
+};
 
 let modelRenderer = null;
 
-window.addEventListener('message', async e => {
-    switch (e.data.type) {
-        case 'mdxData':
-            modelArrayBuffer = e.data.data;
-            // Load our MDX model!
-            let modelPromise = viewer.load('test.mdx', pathSolver);
-            modelPromise.then((model) => {
-                // The promise can return undefined if something went wrong!
-                if (model) {
-                    setAnimationList(model);
-                    initControls();
-                    // Create an instance of this model.
-                    let instance = model.addInstance();
-                    modelRenderer = instance;
+viewer.load('test.mdx').then(model => {
 
-                    // Set the instance's scene.
-                    // Equivalent to scene.addInstance(instance)
-                    instance.setScene(scene);
+    console.info('model', model, scene);
+    scene.lightPosition = vec3.fromValues(200, 0, 0);
 
-                    // Want to run the second animation.
-                    // 0 is the first animation, and -1 is no animation.
-                    instance.setSequence(0);
+    setAnimationList(model);
+    setTeamColor();
+    initControls();
+    // Create an instance of this model.
+    let instance = model.addInstance();
+    modelRenderer = instance;
 
-                    // Tell the instance to loop animations forever.
-                    // This overrides the setting in the model itself.
-                    instance.setSequenceLoopMode(2);
-                    instance.move([0, 0, 0]);
+    // Set the instance's scene.
+    // Equivalent to scene.addInstance(instance)
+    instance.setScene(scene);
 
-                    // Let's create another instance and do other stuff with it.
-                    // let instance2 = model.addInstance();
-                    // instance2.setScene(scene);
-                    // instance2.setSequence(0);
-                    // instance2.setSequenceLoopMode(2);
-                    // instance2.move([100, 100, 0]);
-                    // instance2.uniformScale(0.5);
+    // Want to run the second animation.
+    // 0 is the first animation, and -1 is no animation.
+    instance.setSequence(0);
 
-                    // // And a third one.
-                    // let instance3 = model.addInstance();
-                    // instance3.setScene(scene);
-                    // instance3.setSequence(2);
-                    // instance3.setSequenceLoopMode(2);
-                    // instance3.move([-100, -100, 0]);
-                }
-            });
-            break;
-        case 'blpData': {
-            if (imgPromiseMap[e.data.source]) {
-                try {
-                    let handler = viewer.detectFormat(e.data.data);
-                    console.info(e.data.data, handler, e.data.source);
-                    if (handler) {
-                        imgPromiseMap[e.data.source].resolve(new handler.resource(e.data.data, { viewer: viewer, pathSolver }));
-                        return;
-                    }
-                    if(e.data.source.endsWith('.tga')) {
-                        imgPromiseMap[e.data.source].resolve(new handlers.tga.resource(e.data.data, { viewer: viewer, pathSolver }));
-                        return;
-                    }
-                    if (e.data.ext && e.data.ext === 'dds') {
-                        imgPromiseMap[e.data.source].resolve(new handlers.dds.resource(e.data.data, { viewer: viewer, pathSolver }));
-                    } else {
-                        imgPromiseMap[e.data.source].resolve(new handlers.blp.resource(e.data.data, { viewer: viewer, pathSolver }));
-                    }
-                } catch (ex) {
-                    console.error(ex, e.data.data);
-                }
-            }
-            break;
-        }
-    }
+    // Tell the instance to loop animations forever.
+    // This overrides the setting in the model itself.
+    instance.setSequenceLoopMode(2);
+    instance.move([0, 0, 0]);
 });
-
 
 function initControls() {
     let select = document.getElementById('select') as HTMLSelectElement;
     select.addEventListener('input', () => {
         modelRenderer.setSequence(parseInt(select.value, 10));
+    });
+    let teamcolor = document.getElementById('teamcolor') as HTMLSelectElement;
+    teamcolor.addEventListener('input', () => {
+        modelRenderer.setTeamColor(parseInt(teamcolor.value, 10));
+        modelRenderer.forced =  true;
     });
     let volume = document.getElementById('volume') as HTMLSelectElement;
     volume.addEventListener('input', () => {

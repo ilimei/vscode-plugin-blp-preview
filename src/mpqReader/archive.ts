@@ -3,7 +3,7 @@ import MpqBlockTable from './blocktable';
 import MpqCrypto from './crypto';
 import MpqHashTable from './hashtable';
 import { searchHeader } from './isarchive';
-import * as fs from "fs";
+import FsPromise from "./fspromise";
 
 /**
  * MoPaQ archive (MPQ) version 0.
@@ -30,10 +30,10 @@ export default class MpqArchive {
    * 
    * Note that this clears the archive from whatever it had in it before.
    */
-  load(mpqFilePath: string, readonly: boolean = false) {
-    const fd = fs.openSync(mpqFilePath, "r");
+  async load(mpqFilePath: string, readonly: boolean = false) {
+    const fd = await FsPromise.open(mpqFilePath, "r");
     this.fd = fd;
-    const stat = fs.statSync(mpqFilePath);
+    const stat = await FsPromise.stat(mpqFilePath);
     this.readonly = readonly;
 
     console.info("fileSzie", stat);
@@ -45,7 +45,7 @@ export default class MpqArchive {
     }
 
     const buf = Buffer.alloc(8 * 4);
-    fs.readSync(fd, buf, 0, buf.length, headerOffset);
+    await FsPromise.read(fd, buf, 0, buf.length, headerOffset);
     // Read the header.
     let uint32array = new Uint32Array(buf.valueOf().buffer);
     // let headerSize = uint32array[1];
@@ -70,18 +70,18 @@ export default class MpqArchive {
     // Also clears any existing entries.
     // Have to copy the data, because hashPos is not guaranteed to be a multiple of 4.
     const hashTableBuf = Buffer.alloc(hashSize * 16);
-    fs.readSync(fd, hashTableBuf, 0, hashSize * 16, hashPos);
+    await FsPromise.read(fd, hashTableBuf, 0, hashSize * 16, hashPos);
     this.hashTable.load(hashTableBuf.valueOf());
 
     // Read the block table.
     // Also clears any existing entries.
     // Have to copy the data, because blockPos is not guaranteed to be a multiple of 4.
     const blockTableBuf = Buffer.alloc(blockSize * 16);
-    fs.readSync(fd, blockTableBuf, 0, blockSize * 16, blockPos);
+    await FsPromise.read(fd, blockTableBuf, 0, blockSize * 16, blockPos);
     this.blockTable.load(blockTableBuf.valueOf());
   }
 
-  get(name: string): Buffer {
+  async get(name: string): Promise<Uint8Array> {
     const hash = this.hashTable.get(name);
     if(!hash) {
       return null;
@@ -91,15 +91,8 @@ export default class MpqArchive {
       return null;
     }
     console.info(hash, block);
-    const blpBuffer = Buffer.alloc(block.normalSize);
-    fs.readSync(this.fd, blpBuffer, 0, blpBuffer.length, block.offset);
-    return blpBuffer;
+    const blpBuffer = Buffer.alloc(block.compressedSize);
+    await FsPromise.read(this.fd, blpBuffer, 0, blpBuffer.length, block.offset);
+    return block.decode(name, new Uint8Array(blpBuffer), this);
   }
 }
-
-// const archive = new MpqArchive();
-
-// archive.load("D:\\Warcraft III\\war3.mpq", true);
-
-// const buf = archive.get('ui\\framedef\\ui\\simpleinfopanel.fdf ');
-// console.info(buf);

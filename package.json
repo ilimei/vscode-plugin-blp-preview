@@ -2,7 +2,7 @@
 	"name": "blp-preview",
 	"displayName": "blp-preview",
 	"description": "blp1 image preview, tag image preview, mdx model preview",
-	"version": "0.0.9",
+	"version": "0.1.1",
 	"publisher": "hugehardzhang",
 	"icon": "icon.png",
 	"engines": {
@@ -22,15 +22,20 @@
 	],
 	"main": "./dist/extension.js",
 	"contributes": {
-		"customEditors": [{
-			"viewType": "blpPreview.previewEditor",
-			"displayName": "blp-preview",
-			"priority": "default",
-			"selector": [{
-				"filenamePattern": "*.{blp,tga,mdx,mdl}"
-			}]
-		}],
-		"commands": [{
+		"customEditors": [
+			{
+				"viewType": "blpPreview.previewEditor",
+				"displayName": "blp-preview",
+				"priority": "default",
+				"selector": [
+					{
+						"filenamePattern": "*.{blp,tga,mdx,mdl}"
+					}
+				]
+			}
+		],
+		"commands": [
+			{
 				"command": "blpPreview.zoomIn",
 				"title": "blpPreview.zoomIn",
 				"category": "Blp Preview"
@@ -42,7 +47,8 @@
 			}
 		],
 		"menus": {
-			"commandPalette": [{
+			"commandPalette": [
+				{
 					"command": "blpPreview.zoomIn",
 					"when": "activeCustomEditorId == 'blpPreview.previewEditor'",
 					"group": "1_blpPreview"
@@ -99,6 +105,7 @@
 		"webpack-cli": "^4.7.0"
 	},
 	"dependencies": {
+		"pako": "^2.0.4",
 		"vscode-nls": "^5.0.0"
 	},
 	"babel": {

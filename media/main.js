@@ -61,8 +61,6 @@
 	const settings = getSettings();
 	const isMac = settings.isMac;
 
-	const vscode = acquireVsCodeApi();
-
 	const initialState = vscode.getState() || {
 		scale: 'fit',
 		offsetX: 0,
@@ -326,8 +324,23 @@
 		document.body.classList.remove('loading');
 	});
 
-	vscode.postMessage({
-		type: 'load',
+	// @ts-ignore
+	message.load().then(async ({ buf, ext }) => {
+		if (ext.toLowerCase() === 'blp') {
+			const blp = decode(buf);
+			const canvas = document.createElement('canvas');
+			// resize it to the size of our ImageBitmap
+			canvas.width = blp.width;
+			canvas.height = blp.height;
+			const img = await createImageBitmap(getImageData(blp, 0));
+			const ctx = canvas.getContext("2d");
+			ctx.drawImage(img, 0, 0);
+			image.src = canvas.toDataURL();
+		} else {
+			var tga = new TGA();
+			tga.load(buf);
+			image.src = tga.getDataURL();
+		}
 	});
 
 	document.querySelector('.open-file-link').addEventListener('click', () => {
@@ -338,30 +351,6 @@
 
 	window.addEventListener('message', async e => {
 		switch (e.data.type) {
-			case 'imgSrc':
-				try {
-					if (e.data.extName.toLowerCase() === 'blp') {
-						const blp = decode(e.data.data);
-						const canvas = document.createElement('canvas');
-						// resize it to the size of our ImageBitmap
-						canvas.width = blp.width;
-						canvas.height = blp.height;
-						const img = await createImageBitmap(getImageData(blp, 0));
-						const ctx = canvas.getContext("2d");
-						ctx.drawImage(img, 0, 0);
-						image.src = canvas.toDataURL();
-					} else {
-						var tga = new TGA();
-						tga.load(e.data.data);
-						image.src = tga.getDataURL();
-					}
-				} catch (e) {
-					console.error(e);
-					hasLoadedImage = true;
-					document.body.classList.add('error');
-					document.body.classList.remove('loading');
-				}
-				break;
 			case 'setScale':
 				updateScale(e.data.scale);
 				break;

@@ -10,7 +10,7 @@ import { ZoomStatusBarEntry } from './zoomStatusBarEntry';
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
-	
+
 	const sizeStatusBarEntry = new SizeStatusBarEntry();
 	context.subscriptions.push(sizeStatusBarEntry);
 
@@ -36,4 +36,4 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 // this method is called when your extension is deactivated
-export function deactivate() {}
+export function deactivate() { }
