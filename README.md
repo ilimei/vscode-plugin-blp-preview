@@ -11,6 +11,10 @@ Suppoerted war3 model formats:
 
 - `*.mdx`
 
+Suppoerted war3 map formats:
+
+- `*.w3e`
+
 ## thanks
 
 - [war3-model](https://github.com/4eb0da/war3-model)

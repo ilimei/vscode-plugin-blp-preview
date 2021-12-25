@@ -3,7 +3,6 @@ import { setupCamera } from "./camera";
 const handlers = ModelViewer.viewer.handlers;
 const common = ModelViewer.common;
 const glMatrix = common.glMatrix;
-let modelArrayBuffer: ArrayBuffer = null;
 const vec3 = glMatrix.vec3;
 const quat = glMatrix.quat;
 
@@ -16,7 +15,6 @@ canvas.height = 600;
 let viewer = new ModelViewer.viewer.ModelViewer(canvas);
 viewer.debugRenderMode = ModelViewer.viewer.DebugRenderMode.None;
 
-console.info('model', viewer, ModelViewer);
 
 // Create a new scene. Each scene has its own camera, and a list of things to render.
 let scene = viewer.addScene();
@@ -84,7 +82,6 @@ requestAnimationFrame(step);
 
 // @ts-ignore
 window.fetch = async function (path: string) {
-    console.info('fetch', path);
     if (path.toLowerCase().endsWith('mdx')) {
         const { buf } = await message.load();
         return {
@@ -105,7 +102,6 @@ let modelRenderer = null;
 
 viewer.load('test.mdx').then(model => {
 
-    console.info('model', model, scene);
     scene.lightPosition = vec3.fromValues(200, 0, 0);
 
     setAnimationList(model);

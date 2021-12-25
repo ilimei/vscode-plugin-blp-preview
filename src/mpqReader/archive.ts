@@ -36,7 +36,6 @@ export default class MpqArchive {
     const stat = await FsPromise.stat(mpqFilePath);
     this.readonly = readonly;
 
-    console.info("fileSzie", stat);
     // let fileSize = buffer.byteLength;
     let headerOffset = searchHeader(fd, stat.size);
 
@@ -90,7 +89,6 @@ export default class MpqArchive {
     if(!block) {
       return null;
     }
-    console.info(hash, block);
     const blpBuffer = Buffer.alloc(block.compressedSize);
     await FsPromise.read(this.fd, blpBuffer, 0, blpBuffer.length, block.offset);
     return block.decode(name, new Uint8Array(blpBuffer), this);

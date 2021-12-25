@@ -11,7 +11,6 @@ export default class Message {
 
     constructor() {
         window.addEventListener('message', async e => {
-            console.info('recevie', e);
             if (this.requestsMap[e.data.requestId]) {
                 this.requestsMap[e.data.requestId].resolve(e.data.data);
                 delete this.requestsMap[e.data.requestId];
@@ -19,12 +18,20 @@ export default class Message {
         });
     }
 
-    async load(): Promise<{buf: Buffer, ext: string}> {
+    async load(): Promise<{ buf: Buffer, ext: string }> {
         return await this._trans('load');
     }
 
     async loadBlp(blpPath: string) {
         return await this._trans('loadBlp', blpPath);
+    }
+
+    async loadText(blpPath: string) {
+        return await this._trans('loadText', blpPath);
+    }
+
+    async loadTextArray(blpPath: string): Promise<string[]> {
+        return await this._trans('loadTextArray', blpPath);
     }
 
     _trans(type: string, data: any = null, timeout: number = -1): any {
@@ -43,7 +50,6 @@ export default class Message {
             }
         });
         this.requestsMap[requestId] = request;
-        console.info('request', request);
         vscode.postMessage({
             type,
             requestId,

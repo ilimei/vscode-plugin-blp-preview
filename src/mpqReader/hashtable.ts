@@ -60,7 +60,6 @@ export default class MpqHashTable {
   }
 
   load(bytes: Uint8Array) {
-    console.info(bytes.byteLength/16);
     let entriesCount = bytes.byteLength / 16;
     let uint32array = new Uint32Array(this.c.decryptBlock(bytes, HASH_TABLE_KEY).buffer);
     let offset = 0;

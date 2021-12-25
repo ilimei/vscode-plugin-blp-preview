@@ -9,7 +9,6 @@ function request(url: string): Promise<{ buf: Buffer, ext: string }> {
     return new Promise((resolve) => {
         http.request(url, async res => {
             const chunks = [];
-            console.info(res.statusCode);
             if (res.statusCode === 303) {
                 resolve(await request(res.headers['location']));
             }
@@ -50,7 +49,7 @@ export default class Message {
         return { ext: extName, buf: new Uint8Array(buf).buffer };
     }
 
-    async loadBlp(path: string, deep: number = -1) {
+    async _loadSource(path: string, deep: number = -1) {
         const blpURI = vscode.Uri.joinPath(this.resourceRoot, path);
         return vscode.workspace.fs.stat(blpURI).then(async () => {
             const buf = await vscode.workspace.fs.readFile(blpURI);
@@ -65,22 +64,60 @@ export default class Message {
                 }
             }
             if (deep === -1 || deep > 0) {
-                return await this.loadBlp('../' + path, deep === -1 ? this.maxDeep : deep - 1);
+                return await this._loadSource('../' + path, deep === -1 ? this.maxDeep : deep - 1);
             } else if (deep === 0) {
                 console.info("request", `https://www.hiveworkshop.com/casc-contents?path=${encodeURIComponent(path)}`);
                 const { buf } = await request(`https://www.hiveworkshop.com/casc-contents?path=${encodeURIComponent(path)}`);
                 if (buf) {
-                    return new Uint8Array(buf);
+                    return new Uint8Array(buf).buffer;
                 }
             }
         });
     }
 
+    async _loadSourceArray(path: string, deep: number = -1) {
+        const blpURI = vscode.Uri.joinPath(this.resourceRoot, path);
+        return vscode.workspace.fs.stat(blpURI).then(async () => {
+            const buf = await vscode.workspace.fs.readFile(blpURI);
+            return [new Uint8Array(buf).buffer];
+        }, async () => {
+            if (deep === -1) {
+                if (this.mpqManager) {
+                    const buf = await this.mpqManager.getAll(path.replace(/\//g, '\\'));
+                    if (buf) {
+                        return buf.map(v => new Uint8Array(v).buffer);
+                    }
+                }
+            }
+            if (deep === -1 || deep > 0) {
+                return await this._loadSource('../' + path, deep === -1 ? this.maxDeep : deep - 1);
+            } else if (deep === 0) {
+                console.info("request", `https://www.hiveworkshop.com/casc-contents?path=${encodeURIComponent(path)}`);
+                const { buf } = await request(`https://www.hiveworkshop.com/casc-contents?path=${encodeURIComponent(path)}`);
+                if (buf) {
+                    return [new Uint8Array(buf).buffer];
+                }
+            }
+        });
+    }
+
+    async loadBlp(path: string) {
+        return await this._loadSource(path);
+    }
+
+    async loadText(path: string) {
+        const buf: ArrayBufferLike = await this._loadSource(path);
+        return Buffer.from(buf).toString('utf-8');
+    }
+
+    async loadTextArray(path: string) {
+        const buf: ArrayBufferLike[] = await this._loadSourceArray(path);
+        return buf.map(v => Buffer.from(v).toString('utf-8'));
+    }
+
     async onMessgae(message: { type: string, requestId: number, data: any }) {
-        console.info('onMessage', message, this[message.type]);
         if (this[message.type]) {
             const ret = await this[message.type](message.data);
-            console.info('ret', ret, this.webview);
             this.webview.postMessage({ requestId: message.requestId, data: ret });
         }
     }

@@ -18,29 +18,6 @@ import Message from './Message';
 
 const localize = nls.loadMessageBundle();
 
-
-function request(url: string, cb: (buf: Buffer, ext: string) => void) {
-	http.request(url, res => {
-		const chunks = [];
-		console.info(res.statusCode);
-		if (res.statusCode === 303) {
-			return request(res.headers['location'], cb);
-		}
-		if (res.statusCode !== 200) {
-			cb(null, null);
-			return;
-		}
-		res.on('data', function (chunk) {
-			chunks.push(chunk);
-		});
-
-		//the whole response has been received, so we just print it out here
-		res.on('end', function () {
-			cb(Buffer.concat(chunks), url.split(/\./).pop());
-		});
-	}).end();
-}
-
 export class PreviewManager implements vscode.CustomReadonlyEditorProvider {
 
 	public static readonly viewType = 'blpPreview.previewEditor';
@@ -233,7 +210,6 @@ class Preview extends Disposable {
 			}
 		}
 		const next = path.dirname(startPath);
-		console.info('startPath', startPath, 'fileName', fileName);
 		if (next === startPath) {
 			return null;
 		}
@@ -286,8 +262,10 @@ class Preview extends Disposable {
 
 		const nonce = getNonce();
 		const cspSource = this.webviewEditor.webview.cspSource;
+		const isMdx = this.resource.path.toLowerCase().endsWith('mdx');
+		const isW3e = this.resource.path.toLowerCase().endsWith('w3e');
 
-		if (this.resource.path.toLowerCase().endsWith(".mdx")) {
+		if (isMdx || isW3e) {
 			return /* html */`<!DOCTYPE html>
 			<html lang="en">
 			<head>
@@ -323,7 +301,7 @@ class Preview extends Disposable {
 				</script>
 				<script src="${escapeAttribute(this.extensionResource('/media/message.js'))}" nonce="${nonce}"></script>
 				<script src="${escapeAttribute(this.extensionResource('/media/viewer.min.js'))}" nonce="${nonce}"></script>
-				<script src="${escapeAttribute(this.extensionResource('/media/modelPreview.js'))}" nonce="${nonce}"></script>
+				<script src="${escapeAttribute(this.extensionResource(isMdx ? '/media/modelPreview.js' : '/media/mapPreview.js'))}" nonce="${nonce}"></script>
 			</body>
 			</html>`;
 		}
