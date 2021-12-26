@@ -34,6 +34,10 @@ export default class Message {
         return await this._trans('loadTextArray', blpPath);
     }
 
+    async loadResource(blpPath: string) {
+        return await this._trans('loadResource', blpPath);
+    }
+
     _trans(type: string, data: any = null, timeout: number = -1): any {
         const requestId = parseInt((Math.random() + '').slice(2), 10);
         const request: Request = {

@@ -5,7 +5,7 @@ import { IniFile } from './ini';
  * A MappedData row.
  */
 export class MappedDataRow {
-  map: {[key: string]: string } = {};
+  map: { [key: string]: string } = {};
 
   set(key: string, value: string | number): void {
     if (typeof value !== 'string') {
@@ -25,7 +25,7 @@ export class MappedDataRow {
     if (!string) {
       return 0;
     }
-    
+
     return parseFloat(string);
   }
 }
@@ -36,7 +36,7 @@ export class MappedDataRow {
  * In the case of SLK files, the first row is expected to hold the names of the columns.
  */
 export class MappedData {
-  map: {[key: string]: MappedDataRow } = {};
+  map: { [key: string]: MappedDataRow } = {};
 
   constructor(buffer?: string) {
     if (buffer) {

@@ -19,9 +19,10 @@ export class IniFile {
         for (const line of buffer.split('\r\n')) {
             // INI defines comments as starting with a semicolon ';'.
             // However, Warcraft 3 INI files use normal C comments '//'.
+            // w3x2lni,  use comments '--'.
             // In addition, Warcraft 3 files have empty lines.
             // Therefore, ignore any line matching any of these conditions.
-            if (line.length && !line.startsWith('//') && !line.startsWith(';')) {
+            if (line.length && !line.startsWith('//') && !line.startsWith(';') && !line.startsWith('--')) {
                 let match = line.match(/^\[(.+?)\]/);
 
                 if (match) {
@@ -38,13 +39,13 @@ export class IniFile {
                     match = line.match(/^(.+?)=(.*?)$/);
 
                     if (match) {
-                        let value = match[2];
+                        let value = match[2].trim();
 
                         if (value[0] === '"') {
                             value = value.slice(1, -1);
                         }
 
-                        section.set(match[1], value);
+                        section.set(match[1].trim(), value);
                     }
                 }
             }

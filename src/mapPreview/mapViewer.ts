@@ -130,9 +130,10 @@ export default class MapViewer {
             this.loadBaseFile('Units\\unitUI.slk', 'text'),
             this.loadBaseFile('Units\\ItemData.slk', 'text'),
             this.loadBaseFile('Units\\UnitMetaData.slk', 'text'),
+            this.loadBaseFile('table\\unit.ini', 'text'),
         ];
 
-        const [terrain, cliffTypes, water, doodads, doodadMetaData, destructableData, destructableMetaData, unitData, unitUi, itemData, unitMetaData] = await Promise.all(promises);
+        const [terrain, cliffTypes, water, doodads, doodadMetaData, destructableData, destructableMetaData, unitData, unitUi, itemData, unitMetaData, customUnit] = await Promise.all(promises);
         if (!terrain || !cliffTypes || !water || !doodads || !doodadMetaData || !destructableData || !destructableMetaData || !unitData || !unitUi || !itemData || !unitMetaData) {
             throw new Error('Failed to load the base files');
         }
@@ -145,6 +146,7 @@ export default class MapViewer {
         this.unitsData.load(<string>unitData.join('\n'));
         this.unitsData.load(<string>unitUi.join('\n'));
         this.unitsData.load(<string>itemData.join('\n'));
+        this.unitsData.load(<string>customUnit.join('\n'));
     }
 
     /**
@@ -430,6 +432,7 @@ export default class MapViewer {
                         fileVar += '.mdx';
 
                         this.viewer.load(fileVar).then((model) => {
+                            if (!model) return;
                             this.doodads.push(new Doodad(this, model, row, doodad));
                         });
                     } else {
@@ -469,7 +472,6 @@ export default class MapViewer {
                     path = 'Objects\\StartLocation\\StartLocation.mdx';
                 } else {
                     row = this.unitsData.getRow(unit.id);
-
                     if (row) {
                         path = row.string('file');
 
@@ -485,6 +487,12 @@ export default class MapViewer {
 
                 if (path) {
                     this.viewer.load(path).then((model) => {
+                        if (!model) {
+                            return this.viewer.load('units/critters/sammycube/sammycube.mdx').then((model) => {
+                                if (!model) return;
+                                this.units.push(new Unit(this, model, row, unit));
+                            });
+                        }
                         this.units.push(new Unit(this, model, row, unit));
                     });
                 } else {

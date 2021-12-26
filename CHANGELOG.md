@@ -26,3 +26,6 @@ remove confict whit image preview
 
 [0.1.1]
 fix bugs
+
+[0.1.3]
+support w3x2Lni dir unit

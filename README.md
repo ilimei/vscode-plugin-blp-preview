@@ -15,6 +15,8 @@ Suppoerted war3 map formats:
 
 - `*.w3e`
 
+Supported w3x2Lni dir unit
+
 ## thanks
 
 - [war3-model](https://github.com/4eb0da/war3-model)

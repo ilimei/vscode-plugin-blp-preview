@@ -52,10 +52,20 @@ document.querySelector('.controls').remove();
 
 // @ts-ignore
 window.fetch = async function (path: string) {
-    const buf = await message.loadBlp(path);
+    /**
+     * 优先查找resource下面的文件
+     */
+    const resourceBuf = await message.loadResource(path);
+    if (!resourceBuf) {
+        const buf = await message.loadBlp(path);
+        return {
+            ok: true,
+            arrayBuffer: () => buf,
+        };
+    }
     return {
         ok: true,
-        arrayBuffer: () => buf,
+        arrayBuffer: () => resourceBuf,
     };
 };
 

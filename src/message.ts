@@ -34,12 +34,17 @@ function request(url: string): Promise<{ buf: Buffer, ext: string }> {
 export default class Message {
 
     maxDeep = 0;
+    rootFolder: vscode.Uri;
 
     constructor(private webview: vscode.Webview,
         private mpqManager: ArchiveManager,
         private resource: vscode.Uri,
         private resourceRoot: vscode.Uri) {
-        this.maxDeep = this.resourceRoot.path.split('/').length - 2;
+        const rootFolder = vscode.workspace.workspaceFolders?.find(v => {
+            return this.resourceRoot.path.startsWith(v.uri.path);
+        });
+        this.rootFolder = rootFolder?.uri;
+        this.maxDeep = this.resourceRoot.path.split('/').length - 1;
     }
 
     async load() {
@@ -84,13 +89,13 @@ export default class Message {
             if (deep === -1) {
                 if (this.mpqManager) {
                     const buf = await this.mpqManager.getAll(path.replace(/\//g, '\\'));
-                    if (buf) {
+                    if (buf.length > 0) {
                         return buf.map(v => new Uint8Array(v).buffer);
                     }
                 }
             }
             if (deep === -1 || deep > 0) {
-                return await this._loadSource('../' + path, deep === -1 ? this.maxDeep : deep - 1);
+                return await this._loadSourceArray('../' + path, deep === -1 ? this.maxDeep : deep - 1);
             } else if (deep === 0) {
                 console.info("request", `https://www.hiveworkshop.com/casc-contents?path=${encodeURIComponent(path)}`);
                 const { buf } = await request(`https://www.hiveworkshop.com/casc-contents?path=${encodeURIComponent(path)}`);
@@ -99,6 +104,29 @@ export default class Message {
                 }
             }
         });
+    }
+
+    /**
+     * w3x2lni工作模式
+     */
+    async loadResource(path: string) {
+        if (this.rootFolder) {
+            const blpURI = vscode.Uri.joinPath(this.rootFolder, 'resource', path);
+            return vscode.workspace.fs.stat(blpURI).then(async () => {
+                const buf = await vscode.workspace.fs.readFile(blpURI);
+                return new Uint8Array(buf).buffer;
+            }, () => {
+                /**
+                 * 尝试找imported下面的文件
+                 */
+                const blpURI = vscode.Uri.joinPath(this.rootFolder, 'resource/war3mapImported', path);
+                return vscode.workspace.fs.stat(blpURI).then(async () => {
+                    const buf = await vscode.workspace.fs.readFile(blpURI);
+                    return new Uint8Array(buf).buffer;
+                }, () => null);
+            });
+        }
+        return null;
     }
 
     async loadBlp(path: string) {
