@@ -24,6 +24,9 @@ export function activate(context: vscode.ExtensionContext) {
 
 	context.subscriptions.push(vscode.window.registerCustomEditorProvider(PreviewManager.viewType, previewManager, {
 		supportsMultipleEditorsPerDocument: true,
+		webviewOptions: {
+			retainContextWhenHidden: true,
+		}
 	}));
 
 	context.subscriptions.push(vscode.commands.registerCommand('blpPreview.zoomIn', () => {

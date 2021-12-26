@@ -6,8 +6,6 @@
 import * as vscode from 'vscode';
 import * as nls from 'vscode-nls';
 import * as fs from "fs";
-import * as path from "path";
-import * as http from "https";
 import { Disposable } from './dispose';
 import { SizeStatusBarEntry } from './sizeStatusBarEntry';
 import { Scale, ZoomStatusBarEntry } from './zoomStatusBarEntry';
@@ -187,35 +185,6 @@ class Preview extends Disposable {
 		this.webviewEditor.webview.postMessage({ type: 'setActive', value: this.webviewEditor.active });
 	}
 
-	/**
-	 * 递归向上查找文件
-	 * @param startPath 
-	 * @param fileName 
-	 * @returns 
-	 */
-	private findFile(startPath: string, fileName: string) {
-		const files = fs.readdirSync(startPath);
-		if (fileName.indexOf("\\") > 0) {
-			const findFolder = fileName.split(/\\/)[0];
-			if (findFolder) {
-				const file = files.find(v => v.toLowerCase().endsWith(findFolder.toLowerCase()));
-				if (file && fs.existsSync(path.resolve(startPath, fileName))) {
-					return path.resolve(startPath, fileName);
-				}
-			}
-		} else {
-			const file = files.find(v => v.toLowerCase().endsWith(fileName.toLowerCase()));
-			if (file) {
-				return path.resolve(startPath, file);
-			}
-		}
-		const next = path.dirname(startPath);
-		if (next === startPath) {
-			return null;
-		}
-		return this.findFile(path.dirname(startPath), fileName);
-	}
-
 	public zoomIn() {
 		if (this._previewState === PreviewState.Active) {
 			this.webviewEditor.webview.postMessage({ type: 'zoomIn' });
@@ -229,6 +198,7 @@ class Preview extends Disposable {
 	}
 
 	private async render() {
+		console.trace('render');
 		if (this._previewState !== PreviewState.Disposed) {
 			this.webviewEditor.webview.html = await this.getWebviewContents();
 		}
@@ -342,23 +312,6 @@ class Preview extends Disposable {
 	<script src="${escapeAttribute(this.extensionResource('/media/main.js'))}" nonce="${nonce}"></script>
 </body>
 </html>`;
-	}
-
-	private async getResourcePath(webviewEditor: vscode.WebviewPanel, resource: vscode.Uri, version: string): Promise<string> {
-		if (resource.scheme === 'git') {
-			const stat = await vscode.workspace.fs.stat(resource);
-			if (stat.size === 0) {
-				return this.emptyPngDataUri;
-			}
-		}
-
-		// Avoid adding cache busting if there is already a query string
-		if (resource.query) {
-			return webviewEditor.webview.asWebviewUri(resource).toString();
-		}
-
-
-		return webviewEditor.webview.asWebviewUri(resource).with({ query: `version=${version}` }).toString();
 	}
 
 	private extensionResource(path: string) {
