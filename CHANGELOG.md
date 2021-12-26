@@ -29,3 +29,6 @@ fix bugs
 
 [0.1.3]
 support w3x2Lni dir unit
+
+[0.1.4]
+remain context when hidden
