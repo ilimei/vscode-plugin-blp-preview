@@ -1,4 +1,4 @@
-import Message from "./message"
+import Message from "./modelPreview/message"
 declare global {
     const message: Message;
     const vscode: {

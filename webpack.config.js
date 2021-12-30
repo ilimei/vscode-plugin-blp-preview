@@ -7,7 +7,7 @@ const path = require('path');
 /**@type {import('webpack').Configuration}*/
 const config = {
   target: 'node', // vscode extensions run in a Node.js-context 📖 -> https://webpack.js.org/configuration/node/
-	mode: 'none', // this leaves the source code as close as possible to the original (when packaging we set this to 'production')
+  mode: 'none', // this leaves the source code as close as possible to the original (when packaging we set this to 'production')
 
   entry: {
     'media/modelPreview': './src/modelPreview/index.ts',
@@ -40,6 +40,10 @@ const config = {
             loader: 'babel-loader'
           }
         ]
+      },
+      {
+        test: /\.glsl$/,
+        loader: 'webpack-glsl'
       }
     ]
   }

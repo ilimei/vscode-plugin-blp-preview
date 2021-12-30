@@ -1,8 +1,10 @@
 const shader = `
 uniform mat4 u_VP;
 uniform sampler2D u_heightMap;
+uniform sampler2D u_cliff_heightMap;
 uniform vec2 u_size;
 uniform vec2 u_offset;
+uniform vec2 u_sel;
 uniform bool u_extended[14];
 uniform float u_baseTileset;
 
@@ -14,6 +16,8 @@ attribute vec4 a_variations;
 varying vec4 v_tilesets;
 varying vec2 v_uv[4];
 varying vec3 v_normal;
+
+varying float v_id;
 
 vec2 getCell(float variation) {
   if (variation < 16.0) {
@@ -36,6 +40,7 @@ vec2 getUV(vec2 position, bool extended, float variation) {
 
 void main() {
   vec4 textures = a_textures - u_baseTileset;
+  v_id = 0.0;
   
   if (textures[0] > 0.0 || textures[1] > 0.0 || textures[2] > 0.0 || textures[3] > 0.0) {
     v_tilesets = textures;
@@ -49,12 +54,15 @@ void main() {
     vec2 base = corner + a_position;
     float height = texture2D(u_heightMap, base / u_size).a;
 
-    float hL = texture2D(u_heightMap, vec2(base - vec2(1.0, 0.0)) / (u_size)).a;
-    float hR = texture2D(u_heightMap, vec2(base + vec2(1.0, 0.0)) / (u_size)).a;
-    float hD = texture2D(u_heightMap, vec2(base - vec2(0.0, 1.0)) / (u_size)).a;
-    float hU = texture2D(u_heightMap, vec2(base + vec2(0.0, 1.0)) / (u_size)).a;
+    float hL = texture2D(u_cliff_heightMap, vec2(base - vec2(1.0, 0.0)) / (u_size)).a;
+    float hR = texture2D(u_cliff_heightMap, vec2(base + vec2(1.0, 0.0)) / (u_size)).a;
+    float hD = texture2D(u_cliff_heightMap, vec2(base - vec2(0.0, 1.0)) / (u_size)).a;
+    float hU = texture2D(u_cliff_heightMap, vec2(base + vec2(0.0, 1.0)) / (u_size)).a;
 
     v_normal = normalize(vec3(hL - hR, hD - hU, 2.0));
+    if(corner[0] == u_sel[0] && corner[1] == u_sel[1]) {
+      v_id = 0.5;
+    }
 
     gl_Position = u_VP * vec4(base * 128.0 + u_offset, height * 128.0, 1.0);
   } else {

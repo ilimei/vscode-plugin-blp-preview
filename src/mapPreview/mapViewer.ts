@@ -9,6 +9,11 @@ import cliffsVert from './shaders/cliffs.vert';
 import cliffsFrag from './shaders/cliffs.frag';
 import waterVert from './shaders/water.vert';
 import waterFrag from './shaders/water.frag';
+import normalFrag from './shaders/normal.frag';
+import normalVert from './shaders/normal.vert';
+import shownormalVert from './shaders/shownormal.vert';
+import lineFrag from './shaders/line.frag';
+import linelVert from './shaders/line.vert';
 import TerrainModel from "./terrainmodel";
 import War3MapDoo from "../w3xReader/doo/doo";
 import Doodad from "./doodad";
@@ -67,7 +72,9 @@ export default class MapViewer {
     minShallowColor = new Float32Array(4);
 
     vertexBuffer: WebGLBuffer | null = null;
+    lineVertexBuffer: WebGLBuffer | null = null;
     faceBuffer: WebGLBuffer | null = null;
+    lineBuffer: WebGLBuffer | null = null;
     instanceBuffer: WebGLBuffer | null = null;
     textureBuffer: WebGLBuffer | null = null;
     variationBuffer: WebGLBuffer | null = null;
@@ -83,6 +90,8 @@ export default class MapViewer {
     groundShader: any;
     cliffShader: any;
     waterShader: any;
+    normalShader: any;
+    lineShader: any;
 
     worldScene: any;
     cliffModels: any[];
@@ -90,7 +99,10 @@ export default class MapViewer {
     doodads: Doodad[] = [];
     units: Unit[] = [];
     unitsReady: boolean;
-
+    xyzBuffer: any;
+    selX: number = 0;
+    selY: number = 0;
+    shownormalShader: any;
 
     constructor(viewer: any, worldScene: any, buf: ArrayBuffer) {
         this.viewer = viewer;
@@ -99,6 +111,9 @@ export default class MapViewer {
         this.groundShader = this.viewer.webgl.createShader(groundVert, groundFrag);
         this.cliffShader = this.viewer.webgl.createShader(cliffsVert, cliffsFrag);
         this.waterShader = this.viewer.webgl.createShader(waterVert, waterFrag);
+        this.normalShader = this.viewer.webgl.createShader(normalVert, normalFrag);
+        this.shownormalShader = this.viewer.webgl.createShader(shownormalVert, normalFrag);
+        this.lineShader = this.viewer.webgl.createShader(linelVert, lineFrag);
 
         this.w3e = new War3MapW3e();
         this.w3e.load(buf);
@@ -230,6 +245,7 @@ export default class MapViewer {
 
         const corners = this.w3e.corners;
         const [columns, rows] = this.mapSize;
+        console.info(`columnes ${columns} rows ${rows}`, this);
         const instanceCount = (columns - 1) * (rows - 1);
         const cliffHeights = new Float32Array(columns * rows);
         const cornerHeights = new Float32Array(columns * rows);
@@ -332,6 +348,14 @@ export default class MapViewer {
         const gl = this.viewer.gl;
         const webgl = this.viewer.webgl;
 
+        this.xyzBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.xyzBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+            -10000, 0, 0, 10000, 0, 0,
+            0, -10000, 0, 0, 10000, 0,
+            0, 0, -10000, 0, 0, 10000,
+        ]), gl.STATIC_DRAW);
+
         this.vertexBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([0, 0, 1, 0, 0, 1, 1, 1]), gl.STATIC_DRAW);
@@ -339,6 +363,18 @@ export default class MapViewer {
         this.faceBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.faceBuffer);
         gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint8Array([0, 1, 2, 1, 3, 2]), gl.STATIC_DRAW);
+
+        this.lineVertexBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.lineVertexBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+            0, 0, 0, 1, 0, 0,
+            0, 1, 0, 1, 1, 0,
+            0, 0, 1, 0, 1, 1,
+            1, 0, 1, 1, 1, 1,]), gl.STATIC_DRAW);
+
+        this.lineBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.lineBuffer);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7]), gl.STATIC_DRAW);
 
         this.cliffHeightMap = gl.createTexture();
         gl.bindTexture(gl.TEXTURE_2D, this.cliffHeightMap);
@@ -566,10 +602,76 @@ export default class MapViewer {
             worldScene.startFrame();
             this.renderGround();
             this.renderCliffs();
+            // this.renderCliffsNormal();
             worldScene.renderOpaque();
             this.renderWater();
+            this.renderGroudLine();
             worldScene.renderTranslucent();
             this.update();
+        }
+    }
+
+    renderXYZ() {
+        const gl = this.viewer.gl;
+        const webgl = this.viewer.webgl;
+        gl.depthMask(false);
+
+        const shader = this.normalShader;
+        webgl.useShader(shader);
+
+        const uniforms = shader.uniforms;
+        const attribs = shader.attribs;
+
+        gl.uniformMatrix4fv(uniforms['u_VP'], false, this.worldScene.camera.viewProjectionMatrix);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.xyzBuffer);
+        gl.vertexAttribPointer(attribs['a_position'], 3, gl.FLOAT, false, 0, 0);
+
+        var primitiveType = gl.LINES;
+        var offset = 0;
+        var count = 6;
+        gl.drawArrays(primitiveType, offset, count);
+    }
+
+    /**
+     * 绘制地面网格线
+     */
+    renderGroudLine() {
+        if (this.terrainReady) {
+            const gl = this.viewer.gl as WebGLRenderingContext;
+            const webgl = this.viewer.webgl;
+            const instancedArrays = <ANGLE_instanced_arrays>webgl.extensions['ANGLE_instanced_arrays'];
+            const shader = this.lineShader;
+            const uniforms = shader.uniforms;
+            const attribs = shader.attribs;
+            const instanceAttrib = attribs['a_InstanceID'];
+            const positionAttrib = attribs['a_position'];
+
+            gl.enable(gl.BLEND);
+            gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
+            webgl.useShader(shader);
+
+            gl.uniformMatrix4fv(uniforms['u_VP'], false, this.worldScene.camera.viewProjectionMatrix);
+            gl.uniform2fv(uniforms['u_offset'], this.centerOffset);
+            gl.uniform2f(uniforms['u_size'], this.columns, this.rows);
+            gl.uniform2f(uniforms['u_sel'], this.selX, this.selY);
+            gl.uniform1i(uniforms['u_heightMap'], 15);
+
+            gl.activeTexture(gl.TEXTURE15);
+            gl.bindTexture(gl.TEXTURE_2D, this.heightMap);
+
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.lineVertexBuffer);
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.lineBuffer);
+            gl.vertexAttribPointer(positionAttrib, 3, gl.FLOAT, false, 0, 0);
+
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.instanceBuffer);
+            gl.vertexAttribPointer(instanceAttrib, 1, gl.FLOAT, false, 0, 0);
+            instancedArrays.vertexAttribDivisorANGLE(instanceAttrib, 1);
+
+            instancedArrays.drawElementsInstancedANGLE(gl.LINES, 8, gl.UNSIGNED_BYTE, 0, this.rows * this.columns);
+
+            instancedArrays.vertexAttribDivisorANGLE(instanceAttrib, 0);
         }
     }
 
@@ -578,7 +680,7 @@ export default class MapViewer {
      */
     renderGround() {
         if (this.terrainReady) {
-            const gl = this.viewer.gl;
+            const gl = this.viewer.gl as WebGLRenderingContext;
             const webgl = this.viewer.webgl;
             const instancedArrays = <ANGLE_instanced_arrays>webgl.extensions['ANGLE_instanced_arrays'];
             const shader = this.groundShader;
@@ -592,6 +694,7 @@ export default class MapViewer {
             const tilesetCount = tilesetTextures.length; // This includes the blight texture.
 
             gl.enable(gl.BLEND);
+            gl.enable(gl.CULL_FACE);
             gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
             webgl.useShader(shader);
@@ -599,10 +702,15 @@ export default class MapViewer {
             gl.uniformMatrix4fv(uniforms['u_VP'], false, this.worldScene.camera.viewProjectionMatrix);
             gl.uniform2fv(uniforms['u_offset'], this.centerOffset);
             gl.uniform2f(uniforms['u_size'], this.columns, this.rows);
+            gl.uniform2f(uniforms['u_sel'], this.selX, this.selY);
             gl.uniform1i(uniforms['u_heightMap'], 15);
+            gl.uniform1i(uniforms['u_cliff_heightMap'], 16);
 
             gl.activeTexture(gl.TEXTURE15);
             gl.bindTexture(gl.TEXTURE_2D, this.heightMap);
+
+            gl.activeTexture(gl.TEXTURE16);
+            gl.bindTexture(gl.TEXTURE_2D, this.cliffHeightMap);
 
             gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
             gl.vertexAttribPointer(positionAttrib, 2, gl.FLOAT, false, 0, 0);
@@ -659,7 +767,7 @@ export default class MapViewer {
      */
     renderCliffs(): void {
         if (this.cliffsReady) {
-            const gl = this.viewer.gl;
+            const gl = this.viewer.gl as WebGLRenderingContext;
             const webgl = this.viewer.webgl;
             const instancedArrays = <ANGLE_instanced_arrays>webgl.extensions['ANGLE_instanced_arrays'];
             const vertexArrayObject = <OES_vertex_array_object>webgl.extensions['OES_vertex_array_object'];
@@ -708,12 +816,63 @@ export default class MapViewer {
         }
     }
 
+    renderCliffsNormal(): void {
+        if (this.cliffsReady) {
+            const gl = this.viewer.gl as WebGLRenderingContext;
+            const webgl = this.viewer.webgl;
+            const instancedArrays = <ANGLE_instanced_arrays>webgl.extensions['ANGLE_instanced_arrays'];
+            const vertexArrayObject = <OES_vertex_array_object>webgl.extensions['OES_vertex_array_object'];
+            const shader = this.shownormalShader;
+            const attribs = shader.attribs;
+            const uniforms = shader.uniforms;
+
+            gl.disable(gl.BLEND);
+
+            shader.use();
+
+            gl.uniformMatrix4fv(uniforms['u_VP'], false, this.worldScene.camera.viewProjectionMatrix);
+            gl.uniform1i(uniforms['u_heightMap'], 0);
+            gl.uniform2f(uniforms['u_pixel'], 1 / (this.columns + 1), 1 / (this.rows + 1));
+            gl.uniform2fv(uniforms['u_centerOffset'], this.centerOffset);
+            gl.uniform1i(uniforms['u_texture1'], 1);
+            gl.uniform1i(uniforms['u_texture2'], 2);
+
+            gl.activeTexture(gl.TEXTURE0);
+            gl.bindTexture(gl.TEXTURE_2D, this.cliffHeightMap);
+
+            gl.activeTexture(gl.TEXTURE1);
+            gl.bindTexture(gl.TEXTURE_2D, this.cliffTextures[0].webglResource);
+
+            if (this.cliffTextures.length > 1) {
+                gl.activeTexture(gl.TEXTURE2);
+                gl.bindTexture(gl.TEXTURE_2D, this.cliffTextures[1].webglResource);
+            }
+
+            // Set instanced attributes.
+            if (!vertexArrayObject) {
+                instancedArrays.vertexAttribDivisorANGLE(attribs['a_instancePosition'], 1);
+                instancedArrays.vertexAttribDivisorANGLE(attribs['a_instanceTexture'], 1);
+            }
+
+            // Render the cliffs.
+            for (const cliff of this.cliffModels) {
+                cliff.renderNormal(shader);
+            }
+
+            // Clear instanced attributes.
+            if (!vertexArrayObject) {
+                instancedArrays.vertexAttribDivisorANGLE(attribs['a_instancePosition'], 0);
+                instancedArrays.vertexAttribDivisorANGLE(attribs['a_instanceTexture'], 0);
+            }
+        }
+    }
+
     /**
      * 绘制水面
      */
     renderWater(): void {
         if (this.terrainReady) {
-            const gl = this.viewer.gl;
+            const gl = this.viewer.gl as WebGLRenderingContext;
             const webgl = this.viewer.webgl;
             const instancedArrays = <ANGLE_instanced_arrays>webgl.extensions['ANGLE_instanced_arrays'];
             const shader = this.waterShader;

@@ -198,7 +198,6 @@ class Preview extends Disposable {
 	}
 
 	private async render() {
-		console.trace('render');
 		if (this._previewState !== PreviewState.Disposed) {
 			this.webviewEditor.webview.html = await this.getWebviewContents();
 		}

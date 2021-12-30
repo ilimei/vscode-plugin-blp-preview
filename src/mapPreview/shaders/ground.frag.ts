@@ -8,8 +8,9 @@ uniform sampler2D u_tilesets[15];
 varying vec4 v_tilesets;
 varying vec2 v_uv[4];
 varying vec3 v_normal;
+varying float v_id;
 
-const vec3 lightDirection = normalize(vec3(-0.3, -0.3, 0.25));
+const vec3 lightDirection = normalize(vec3(-1.0, -1.0, 1.0));
 
 vec4 sample(float tileset, vec2 uv) {
   // 1.0 - 1.0 == 0.0 is not always true.
@@ -69,9 +70,10 @@ void main() {
     color = blend(color, v_tilesets[3], v_uv[3]);
   }
 
-  //color *= clamp(dot(v_normal, lightDirection) + 0.45, 0.0, 1.0);
+  color *= clamp(dot(lightDirection,v_normal)*0.5 + 0.5, 0.0, 1.0);
 
-  gl_FragColor = vec4(color.rgb, 1.0);
+  gl_FragColor = vec4(color.xyz + v_id, 1.0);
+  // gl_FragColor = vec4(v_normal * 0.5 + 0.5, 1.0);
 }
 `;
 

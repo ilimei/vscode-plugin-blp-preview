@@ -13,7 +13,7 @@ varying vec2 v_uv;
 varying float v_texture;
 varying vec3 v_position;
 
-const vec3 lightDirection = normalize(vec3(-1.0, -1.0, 1.0));
+const vec3 lightDirection = normalize(vec3(-1.0, -1.0, 3.0));
 
 vec4 sample(float texture, vec2 uv) {
   // int(0.0) == 0 is not always true.
@@ -35,7 +35,7 @@ void main() {
   color *= clamp(dot(lightDirection,v_normal)*0.5 + 0.5, 0.0, 1.0);
 
   gl_FragColor = color;
-  // gl_FragColor = vec4(v_normal * 0.5 + 0.5, 1.0);
+  gl_FragColor = vec4(v_normal * 0.5 + 0.5, 1.0);
 }
 `;
 

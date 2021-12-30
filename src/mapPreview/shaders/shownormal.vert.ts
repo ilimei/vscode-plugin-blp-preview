@@ -4,13 +4,12 @@ uniform sampler2D u_heightMap;
 uniform vec2 u_pixel;
 uniform vec2 u_centerOffset;
 
-attribute vec3 a_instancePosition;
-attribute float a_instanceTexture;
 attribute vec3 a_position;
 attribute vec3 a_normal;
 attribute vec2 a_uv;
-attribute float a_color;
-
+attribute float a_flag;
+attribute vec3 a_instancePosition;
+attribute float a_instanceTexture;
 
 varying vec3 v_normal;
 varying vec2 v_uv;
@@ -43,17 +42,19 @@ void main() {
   v_uv = a_uv;
   v_texture = a_instanceTexture;
   v_position = a_position + vec3(a_instancePosition.xy, a_instancePosition.z + height * 128.0);
-
-  gl_PointSize = 10.0;
-  gl_Position = u_VP * vec4(v_position, 1.0);
-	v_normal = normalize(vec3(terrain_normal.xy + a_normal.xy, terrain_normal.z * a_normal.z));
-  v_normal = a_normal;
+  v_normal = normalize(vec3(terrain_normal.xy + a_normal.xy, terrain_normal.z * a_normal.z));
   if(mod(v_position.x, 128.0) == 0.0) {
     v_normal = vec3(0.0, v_normal.yz);
   }
-  if(mod(v_position.y, 128.0) == 0.0) {
-    v_normal = vec3(v_normal.x, 0.0, v_normal.z);
+  // v_normal = a_normal;
+
+  if(a_flag == 1.0) {
+    v_position = v_position + v_normal * 10.0;
   }
+
+  gl_PointSize = 10.0;
+  gl_Position = u_VP * vec4(v_position, 1.0);
+
 }
 `;
 
