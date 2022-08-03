@@ -33,7 +33,10 @@ function decode(arrayBuffer) {
         data: arrayBuffer
     };
     var type = keyword(view, 0);
-    if (type === 'BLP0' || type === 'BLP2') {
+    if (type === 'BLP2') {
+        return window.blp2(arrayBuffer);
+    }
+    if (type === 'BLP0') {
         throw new Error('BLP0/BLP2 not supported');
     }
     if (type !== 'BLP1') {
@@ -75,6 +78,9 @@ function createImageData(width, height) {
     }
 }
 function getImageData(blp, mipmapLevel) {
+    if (blp instanceof ImageData) {
+        return blp;
+    }
     var view = new DataView(blp.data), uint8Data = new Uint8Array(blp.data), mipmap = blp.mipmaps[mipmapLevel];
     if (blp.content === BLPContent.JPEG) {
         var headerSize = uint32(view, 39), data = new Uint8Array(headerSize + mipmap.size);

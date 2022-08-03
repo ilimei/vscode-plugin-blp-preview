@@ -8,13 +8,12 @@ export function searchHeader(fd: number, fileSize: number) {
   let offset = -1;
   const buf = Buffer.alloc(4);
 
-  for (let i = 0, l = Math.ceil(fileSize / 512); i < l; i++) {
+  for (let i = 0, l = Math.ceil(fileSize / 512); i < l && i < 100; i++) {
     let base = i * 512;
     fs.readSync(fd, buf, 0, 4, base);
-
     // Test 'MPQ\x1A'.
     if (buf[0] === 77 && buf[1] === 80 && buf[2] === 81 && buf[3] === 26) {
-      offset = base;
+      return base;
     }
   }
 

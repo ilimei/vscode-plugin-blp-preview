@@ -307,6 +307,7 @@ class Preview extends Disposable {
 	</script>
 	<script src="${escapeAttribute(this.extensionResource('/media/message.js'))}" nonce="${nonce}"></script>
 	<script src="${escapeAttribute(this.extensionResource('/media/jpgDecoder.js'))}" nonce="${nonce}"></script>
+	<script src="${escapeAttribute(this.extensionResource('/media/blp2.js'))}" nonce="${nonce}"></script>
 	<script src="${escapeAttribute(this.extensionResource('/media/binReader.js'))}" nonce="${nonce}"></script>
 	<script src="${escapeAttribute(this.extensionResource('/media/tga.js'))}" nonce="${nonce}"></script>
 	<script src="${escapeAttribute(this.extensionResource('/media/main.js'))}" nonce="${nonce}"></script>

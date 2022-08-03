@@ -32,3 +32,6 @@ support w3x2Lni dir unit
 
 [0.1.4]
 remain context when hidden
+
+[0.1.6]
+fix bugs and support blp2
