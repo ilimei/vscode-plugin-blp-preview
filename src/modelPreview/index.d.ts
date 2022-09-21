@@ -10,4 +10,11 @@ declare global {
     const TGA: any;
     const getImageData: any;
     const decode: any;
+
+    interface Window {
+        vscode: {
+            postMessage: (msg: {}) => any;
+        },
+        message: Message;
+    }
 }

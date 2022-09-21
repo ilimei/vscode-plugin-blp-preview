@@ -29,7 +29,7 @@
 				"priority": "default",
 				"selector": [
 					{
-						"filenamePattern": "*.{blp,tga,mdx,mdl,w3e}"
+						"filenamePattern": "*.{blp,tga,mdx,mdl,w3e,ini}"
 					}
 				]
 			}
@@ -97,6 +97,11 @@
 		"gl-matrix": "^3.3.0",
 		"glob": "^7.1.7",
 		"mdx-m3-viewer": "^5.8.2",
+		"mini-css-extract-plugin": "^2.6.1",
+		"style-loader": "^3.3.1",
+		"css-loader": "^6.7.1",
+		"less-loader": "^11.0.0",
+		"lessc": "^1.0.2",
 		"mocha": "^8.4.0",
 		"ts-loader": "^9.2.2",
 		"typescript": "^4.3.2",

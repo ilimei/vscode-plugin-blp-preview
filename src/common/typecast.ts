@@ -274,7 +274,7 @@ export function stringToBase256(string: string): number {
  * Interperts a number as a base 256 string.
  */
 export function base256ToString(number: number): string {
-  const array = [];
+  const array: string[] = [];
 
   while (number > 0) {
     array.push(String.fromCharCode(number % 256));

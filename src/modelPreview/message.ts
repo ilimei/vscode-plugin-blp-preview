@@ -1,3 +1,11 @@
+declare global {
+    interface Window {
+        vscode: {
+            postMessage: (msg: {}) => any;
+        },
+        message: Message;
+    }
+}
 
 export interface Request {
     requestId: number;
@@ -42,7 +50,7 @@ export default class Message {
         const requestId = parseInt((Math.random() + '').slice(2), 10);
         const request: Request = {
             requestId,
-            resolve: null,
+            resolve: () => { },
         };
         const p = new Promise((resolve, reject) => {
             request.resolve = resolve;
@@ -54,7 +62,7 @@ export default class Message {
             }
         });
         this.requestsMap[requestId] = request;
-        vscode.postMessage({
+        window.vscode.postMessage({
             type,
             requestId,
             data,
@@ -63,5 +71,4 @@ export default class Message {
     }
 }
 
-// @ts-ignore
 window.message = new Message();

@@ -2,10 +2,10 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 
-import { PreviewManager } from './preview';
-import { BinarySizeStatusBarEntry } from './binarySizeStatusBarEntry';
-import { SizeStatusBarEntry } from './sizeStatusBarEntry';
-import { ZoomStatusBarEntry } from './zoomStatusBarEntry';
+import PreviewManager from './previews/previewManager';
+import { BinarySizeStatusBarEntry } from './statusBar/binarySizeStatusBarEntry';
+import { SizeStatusBarEntry } from './statusBar/sizeStatusBarEntry';
+import { ZoomStatusBarEntry } from './statusBar/zoomStatusBarEntry';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -30,11 +30,11 @@ export function activate(context: vscode.ExtensionContext) {
 	}));
 
 	context.subscriptions.push(vscode.commands.registerCommand('blpPreview.zoomIn', () => {
-		previewManager.activePreview?.zoomIn();
+		previewManager.activePreview?.zoomIn?.();
 	}));
 
 	context.subscriptions.push(vscode.commands.registerCommand('blpPreview.zoomOut', () => {
-		previewManager.activePreview?.zoomOut();
+		previewManager.activePreview?.zoomOut?.();
 	}));
 }
 

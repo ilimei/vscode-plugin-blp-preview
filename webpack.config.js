@@ -3,6 +3,7 @@
 'use strict';
 
 const path = require('path');
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 /**@type {import('webpack').Configuration}*/
 const config = {
@@ -12,6 +13,7 @@ const config = {
   entry: {
     'media/modelPreview': './src/modelPreview/index.ts',
     'media/mapPreview': './src/mapPreview/index.ts',
+    'media/objectEditor': './src/objectEditor/index.ts',
     'media/message': './src/modelPreview/message.ts',
     'dist/extension': './src/extension.ts'
   }, // the entry point of this extension, 📖 -> https://webpack.js.org/configuration/entry-context/
@@ -28,8 +30,9 @@ const config = {
   },
   resolve: {
     // support reading TypeScript and JavaScript files, 📖 -> https://github.com/TypeStrong/ts-loader
-    extensions: ['.ts', '.js']
+    extensions: ['.ts', '.js', '.less']
   },
+  plugins: [new MiniCssExtractPlugin()],
   module: {
     rules: [
       {
@@ -40,7 +43,16 @@ const config = {
             loader: 'babel-loader'
           }
         ]
-      }
+      },
+      {
+        test: /\.less$/i,
+        use: [
+          // compiles Less to CSS
+          MiniCssExtractPlugin.loader,
+          "css-loader",
+          "less-loader",
+        ],
+      },
     ]
   }
 };
