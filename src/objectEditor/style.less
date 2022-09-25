@@ -10,3 +10,37 @@ body {
     padding: 0;
     margin: 0;
 }
+
+.tree-data {
+    text-align: left;
+    font-size: 14px;
+}
+
+.collapsible .folder {
+    display: block;
+    width: 16px;
+    height: 16px;
+    pointer-events: none;
+    background-image: url(./resource/folder-open.png);
+}
+
+.collapsible.collapsed .folder {
+    background-image: url(./resource/folder.png);
+}
+
+.monaco-table {
+    background: var(--vscode-notifications-background);
+}
+
+.monaco-scrollable-element>.scrollbar>.slider {
+    background-color: var(--vscode-scrollbarSlider-background);
+}
+
+.monaco-list-row {
+
+    &.focused,
+    &.selected {
+        background-color: var(--vscode-list-activeSelectionBackground);
+        color: var(--vscode-list-activeSelectionForeground);
+    }
+}

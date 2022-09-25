@@ -11,7 +11,14 @@
 		"strictPropertyInitialization": false,
 		"sourceMap": true,
 		"rootDir": "src",
+		"baseUrl": "src",
+		"paths": {
+			"vs/*": [
+				"objectEditor/*"
+			]
+		},
 		"skipLibCheck": true,
+		"experimentalDecorators": true,
 		"strict": false /* enable all strict type-checking options */
 		/* Additional Checks */
 		// "noImplicitReturns": true, /* Report error when not all code paths in function return a value. */
@@ -19,14 +26,15 @@
 		// "noUnusedParameters": true,  /* Report errors on unused parameters. */
 	},
 	"include": [
-		"src/*"
+		"src/*",
+		"src/objectEditor/base/browser/*",
+		"src/objectEditor/base/browser/ui/*",
+		"src/objectEditor/base/browser/ui/sash/*",
+		"src/objectEditor/base/browser/ui/tree/*"
 	],
 	"exclude": [
 		"node_modules",
 		"node_modules/war3-model/*",
-		"./node_modules",
-		"./node_modules/*",
-		"./node_modules/war3-model/*",
 		".vscode-test"
 	]
 }

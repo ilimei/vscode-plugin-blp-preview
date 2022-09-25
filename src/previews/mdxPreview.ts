@@ -88,6 +88,7 @@ export default class MdxPreview extends BasePreview {
 						exports: {},
 					};
 					window.vscode = acquireVsCodeApi();
+                    window.nonce = "${nonce}";
 				</script>
 				<script src="${escapeAttribute(this.extensionResource('/media/message.js'))}" nonce="${nonce}"></script>
 				<script src="${escapeAttribute(this.extensionResource('/media/viewer.min.js'))}" nonce="${nonce}"></script>

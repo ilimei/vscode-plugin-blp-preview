@@ -4,8 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import * as vscode from 'vscode';
-
-vscode.EventEmitter
+import 'vs/base/browser/broadcast';
 
 export function disposeAll(disposables: vscode.Disposable[]) {
 	while (disposables.length) {

@@ -85,6 +85,8 @@
 	},
 	"devDependencies": {
 		"@babel/core": "^7.14.6",
+		"@babel/plugin-proposal-decorators": "^7.19.1",
+		"@babel/plugin-syntax-decorators": "^7.19.0",
 		"@babel/preset-typescript": "^7.14.5",
 		"@types/glob": "^7.1.3",
 		"@types/mocha": "^8.2.2",
@@ -93,18 +95,21 @@
 		"@typescript-eslint/eslint-plugin": "^4.26.0",
 		"@typescript-eslint/parser": "^4.26.0",
 		"babel-loader": "^8.2.2",
+		"babel-plugin-const-enum": "^1.2.0",
+		"css-loader": "^6.7.1",
 		"eslint": "^7.27.0",
+		"file-loader": "^6.2.0",
 		"gl-matrix": "^3.3.0",
 		"glob": "^7.1.7",
-		"mdx-m3-viewer": "^5.8.2",
-		"mini-css-extract-plugin": "^2.6.1",
-		"style-loader": "^3.3.1",
-		"css-loader": "^6.7.1",
 		"less-loader": "^11.0.0",
 		"lessc": "^1.0.2",
+		"mdx-m3-viewer": "^5.8.2",
+		"mini-css-extract-plugin": "^2.6.1",
 		"mocha": "^8.4.0",
+		"style-loader": "^3.3.1",
 		"ts-loader": "^9.2.2",
-		"typescript": "^4.3.2",
+		"tsconfig-paths-webpack-plugin": "^4.0.0",
+		"typescript": "^4.8.3",
 		"vscode-test": "^1.5.2",
 		"webpack": "^5.38.1",
 		"webpack-cli": "^4.7.0"
@@ -116,6 +121,15 @@
 	"babel": {
 		"presets": [
 			"@babel/preset-typescript"
+		],
+		"plugins": [
+			"const-enum",
+			[
+				"@babel/plugin-proposal-decorators",
+				{
+					"legacy": true
+				}
+			]
 		]
 	}
 }
