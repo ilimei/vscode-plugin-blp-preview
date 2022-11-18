@@ -6,7 +6,7 @@
 import * as vscode from 'vscode';
 import * as nls from 'vscode-nls';
 import * as fs from "fs";
-import { Disposable } from './dispose';
+import { Disposable } from './editors/dispose';
 import { SizeStatusBarEntry } from './sizeStatusBarEntry';
 import { Scale, ZoomStatusBarEntry } from './zoomStatusBarEntry';
 import { BinarySizeStatusBarEntry } from './binarySizeStatusBarEntry';

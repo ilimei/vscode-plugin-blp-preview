@@ -4,7 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import * as vscode from 'vscode';
-import { Disposable } from './dispose';
+import { Disposable } from '../editors/dispose';
 
 export abstract class PreviewStatusBarEntry extends Disposable {
 	private _showOwner: string | undefined;
