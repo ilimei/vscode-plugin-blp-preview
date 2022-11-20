@@ -2,39 +2,41 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 
-import { PreviewManager } from './preview';
-import { BinarySizeStatusBarEntry } from './binarySizeStatusBarEntry';
-import { SizeStatusBarEntry } from './sizeStatusBarEntry';
-import { ZoomStatusBarEntry } from './zoomStatusBarEntry';
+import { activateBarEntry } from './barEntry';
+import EditorProvider from './EditorProvider';
+import PreviewGetter from './editors';
+import blp2Image from './command/blp2img';
+import * as nls from 'vscode-nls';
+const localize = nls.loadMessageBundle();
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
 
-	const sizeStatusBarEntry = new SizeStatusBarEntry();
-	context.subscriptions.push(sizeStatusBarEntry);
+	const { sizeStatusBarEntry, binarySizeStatusBarEntry, zoomStatusBarEntry } = activateBarEntry(context);
 
-	const binarySizeStatusBarEntry = new BinarySizeStatusBarEntry();
-	context.subscriptions.push(binarySizeStatusBarEntry);
+	const editorProvider = new EditorProvider(new PreviewGetter(context.extensionUri, sizeStatusBarEntry, binarySizeStatusBarEntry, zoomStatusBarEntry));
 
-	const zoomStatusBarEntry = new ZoomStatusBarEntry();
-	context.subscriptions.push(zoomStatusBarEntry);
-
-	const previewManager = new PreviewManager(context.extensionUri, sizeStatusBarEntry, binarySizeStatusBarEntry, zoomStatusBarEntry);
-
-	context.subscriptions.push(vscode.window.registerCustomEditorProvider(PreviewManager.viewType, previewManager, {
+	context.subscriptions.push(vscode.window.registerCustomEditorProvider(EditorProvider.viewType, editorProvider, {
 		supportsMultipleEditorsPerDocument: true,
 		webviewOptions: {
 			retainContextWhenHidden: true,
 		}
 	}));
 
-	context.subscriptions.push(vscode.commands.registerCommand('blpPreview.zoomIn', () => {
-		previewManager.activePreview?.zoomIn();
+	context.subscriptions.push(vscode.commands.registerCommand('blpPreview.convert2png', async (uri: vscode.Uri) => {
+		blp2Image(uri.fsPath);
+		await vscode.window.showInformationMessage(localize("blpPreview.convertSuccess", "convert success"));
 	}));
 
-	context.subscriptions.push(vscode.commands.registerCommand('blpPreview.zoomOut', () => {
-		previewManager.activePreview?.zoomOut();
+	context.subscriptions.push(vscode.commands.registerCommand('blpPreview.convert2jpg', async (uri: vscode.Uri) => {
+		blp2Image(uri.fsPath, 'jpg');
+		await vscode.window.showInformationMessage(localize("blpPreview.convertSuccess", "convert success"));
+	}));
+
+	context.subscriptions.push(vscode.commands.registerCommand('blpPreview.convert2blp', async (uri: vscode.Uri) => {
+		blp2Image(uri.fsPath, 'blp');
+		await vscode.window.showInformationMessage(localize("blpPreview.convertSuccess", "convert success"));
 	}));
 }
 

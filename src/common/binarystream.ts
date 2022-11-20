@@ -282,6 +282,19 @@ export default class BinaryStream {
     return data;
   }
 
+  readDataBlock(length: number) {
+    if (this.remaining < length) {
+      throw new Error(`ByteStream: readFloat64: premature end - want 8 bytes but have ${this.remaining}`);
+    }
+
+    const arr = this.uint8array.subarray(this.index, this.index + length);
+
+    this.index += arr.length;
+    this.remaining -= arr.length;
+
+    return arr;
+  }
+
   /**
    * Read an array of 8 bit signed integers.
    */

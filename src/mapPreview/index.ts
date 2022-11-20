@@ -48,8 +48,6 @@ viewer.addHandler(handlers.dds);
 // Add the TGA handler.
 viewer.addHandler(handlers.tga);
 
-document.querySelector('.controls').remove();
-
 // @ts-ignore
 window.fetch = async function (path: string) {
     /**

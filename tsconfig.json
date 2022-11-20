@@ -20,7 +20,7 @@
 	},
 	"include": [
 		"src/*"
-	],
+, "src/barEntry/PreviewStatusBarEntry.ts", "src/editors/dispose.ts"	],
 	"exclude": [
 		"node_modules",
 		"node_modules/war3-model/*",

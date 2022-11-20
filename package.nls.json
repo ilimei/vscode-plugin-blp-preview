@@ -1,0 +1,6 @@
+{
+    "blpPreview.convert2png": "convert to png",
+    "blpPreview.convert2jpg": "convert to jpg",
+    "blpPreview.convert2blp": "convert to blp",
+    "blpPreview.convertSuccess": "convert success"
+}
