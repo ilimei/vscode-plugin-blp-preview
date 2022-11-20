@@ -10,6 +10,9 @@ Supported image formats:
 Supported blp convert to png and jpg
 支持blp图片转png和jpg
 
+Supported png and jpg convert to blp
+支持png和jpg转blp图片
+
 Suppoerted war3 model formats:
 
 - `*.mdx`
@@ -17,8 +20,6 @@ Suppoerted war3 model formats:
 Suppoerted war3 map formats:
 
 - `*.w3e`
-
-Supported w3x2Lni dir unit
 
 ## thanks
 

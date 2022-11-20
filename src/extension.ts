@@ -33,6 +33,11 @@ export function activate(context: vscode.ExtensionContext) {
 		blp2Image(uri.fsPath, 'jpg');
 		await vscode.window.showInformationMessage(localize("blpPreview.convertSuccess", "convert success"));
 	}));
+
+	context.subscriptions.push(vscode.commands.registerCommand('blpPreview.convert2blp', async (uri: vscode.Uri) => {
+		blp2Image(uri.fsPath, 'blp');
+		await vscode.window.showInformationMessage(localize("blpPreview.convertSuccess", "convert success"));
+	}));
 }
 
 // this method is called when your extension is deactivated

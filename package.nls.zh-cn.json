@@ -1,5 +1,6 @@
 {
     "blpPreview.convert2png": "转换成png",
     "blpPreview.convert2jpg": "转换成jpg",
+    "blpPreview.convert2blp": "转换成blp",
     "blpPreview.convertSuccess": "转换成功"
 }

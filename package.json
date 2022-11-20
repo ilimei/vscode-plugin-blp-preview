@@ -2,7 +2,7 @@
 	"name": "blp-preview",
 	"displayName": "blp-preview",
 	"description": "blp1 image preview, tag image preview, mdx model preview",
-	"version": "0.1.7",
+	"version": "0.1.8",
 	"publisher": "hugehardzhang",
 	"icon": "icon.png",
 	"engines": {
@@ -44,6 +44,11 @@
 				"command": "blpPreview.convert2jpg",
 				"title": "%blpPreview.convert2jpg%",
 				"category": "Blp Preview"
+			},
+			{
+				"command": "blpPreview.convert2blp",
+				"title": "%blpPreview.convert2blp%",
+				"category": "Blp Preview"
 			}
 		],
 		"menus": {
@@ -55,6 +60,10 @@
 				{
 					"when": "resourceExtname == .blp",
 					"command": "blpPreview.convert2jpg"
+				},
+				{
+					"when": "resourceExtname == .png || resourceExtname == .jpg || resourceExtname == .jpeg",
+					"command": "blpPreview.convert2blp"
 				}
 			]
 		},
