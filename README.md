@@ -7,6 +7,9 @@ Supported image formats:
 - `*.blp`
 - `*.tga`
 
+Supported blp convert to png and jpg
+支持blp图片转png和jpg
+
 Suppoerted war3 model formats:
 
 - `*.mdx`

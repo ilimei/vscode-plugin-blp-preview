@@ -2,7 +2,7 @@
 	"name": "blp-preview",
 	"displayName": "blp-preview",
 	"description": "blp1 image preview, tag image preview, mdx model preview",
-	"version": "0.1.6",
+	"version": "0.1.7",
 	"publisher": "hugehardzhang",
 	"icon": "icon.png",
 	"engines": {
@@ -36,27 +36,25 @@
 		],
 		"commands": [
 			{
-				"command": "blpPreview.zoomIn",
-				"title": "blpPreview.zoomIn",
+				"command": "blpPreview.convert2png",
+				"title": "%blpPreview.convert2png%",
 				"category": "Blp Preview"
 			},
 			{
-				"command": "blpPreview.zoomOut",
-				"title": "blpPreview.zoomIn",
+				"command": "blpPreview.convert2jpg",
+				"title": "%blpPreview.convert2jpg%",
 				"category": "Blp Preview"
 			}
 		],
 		"menus": {
-			"commandPalette": [
+			"explorer/context": [
 				{
-					"command": "blpPreview.zoomIn",
-					"when": "activeCustomEditorId == 'blpPreview.previewEditor'",
-					"group": "1_blpPreview"
+					"when": "resourceExtname == .blp",
+					"command": "blpPreview.convert2png"
 				},
 				{
-					"command": "blpPreview.zoomOut",
-					"when": "activeCustomEditorId == 'blpPreview.previewEditor'",
-					"group": "1_blpPreview"
+					"when": "resourceExtname == .blp",
+					"command": "blpPreview.convert2jpg"
 				}
 			]
 		},
@@ -94,6 +92,7 @@
 		"@typescript-eslint/parser": "^4.26.0",
 		"babel-loader": "^8.2.2",
 		"eslint": "^7.27.0",
+		"file-loader": "^6.2.0",
 		"gl-matrix": "^3.3.0",
 		"glob": "^7.1.7",
 		"mdx-m3-viewer": "^5.8.2",

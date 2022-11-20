@@ -13,6 +13,7 @@ const config = {
     'media/modelPreview': './src/modelPreview/index.ts',
     'media/mapPreview': './src/mapPreview/index.ts',
     'media/message': './src/modelPreview/message.ts',
+    'media/blpPreview': './src/blpPreview/index.ts',
     'dist/extension': './src/extension.ts'
   }, // the entry point of this extension, 📖 -> https://webpack.js.org/configuration/entry-context/
   output: {

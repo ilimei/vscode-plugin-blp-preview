@@ -5,6 +5,9 @@ import * as vscode from 'vscode';
 import { activateBarEntry } from './barEntry';
 import EditorProvider from './EditorProvider';
 import PreviewGetter from './editors';
+import blp2Image from './command/blp2img';
+import * as nls from 'vscode-nls';
+const localize = nls.loadMessageBundle();
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -21,13 +24,15 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 	}));
 
-	// context.subscriptions.push(vscode.commands.registerCommand('blpPreview.zoomIn', () => {
-	// 	editorProvider.activePreview?.zoomIn();
-	// }));
+	context.subscriptions.push(vscode.commands.registerCommand('blpPreview.convert2png', async (uri: vscode.Uri) => {
+		blp2Image(uri.fsPath);
+		await vscode.window.showInformationMessage(localize("blpPreview.convertSuccess", "convert success"));
+	}));
 
-	// context.subscriptions.push(vscode.commands.registerCommand('blpPreview.zoomOut', () => {
-	// 	editorProvider.activePreview?.zoomOut();
-	// }));
+	context.subscriptions.push(vscode.commands.registerCommand('blpPreview.convert2jpg', async (uri: vscode.Uri) => {
+		blp2Image(uri.fsPath, 'jpg');
+		await vscode.window.showInformationMessage(localize("blpPreview.convertSuccess", "convert success"));
+	}));
 }
 
 // this method is called when your extension is deactivated

@@ -1,8 +1,9 @@
 import * as vscode from 'vscode';
 import PreviewGetter from '.';
 import { Disposable } from "./dispose";
+import Message from '../Message';
 
-export const enum ViewState {
+export enum ViewState {
     disposed,
     visible,
     active,
@@ -34,6 +35,8 @@ export default class BasePreview extends Disposable {
 
     protected _previewState = ViewState.visible;
     protected _imageBinarySize: number | undefined;
+    protected message: Message;
+    
 
     constructor(
         protected readonly extensionRoot: vscode.Uri,
@@ -52,6 +55,12 @@ export default class BasePreview extends Disposable {
                 extensionRoot,
             ]
         };
+
+        this.message = new Message(webviewEditor.webview, previewGetter.mpqManager, resource, resourceRoot);
+
+        this._register(webviewEditor.webview.onDidReceiveMessage(message => {
+            this.onMessage(message);
+        }));
 
         this._register(webviewEditor.onDidChangeViewState(() => {
             this.update();
@@ -99,6 +108,9 @@ export default class BasePreview extends Disposable {
         return '';
     }
 
+    onMessage(message: any) {
+        this.message?.onMessage(message);
+    }
 
     onActive() {
 

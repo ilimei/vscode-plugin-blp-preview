@@ -143,7 +143,7 @@ export default class Message {
         return buf.map(v => Buffer.from(v).toString('utf-8'));
     }
 
-    async onMessgae(message: { type: string, requestId: number, data: any }) {
+    async onMessage(message: { type: string, requestId: number, data: any }) {
         if (this[message.type]) {
             const ret = await this[message.type](message.data);
             this.webview.postMessage({ requestId: message.requestId, data: ret });

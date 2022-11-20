@@ -1,6 +1,7 @@
-import BasePreview, { ViewState } from "./BasePreview";
+import * as vscode from 'vscode';
+import BasePreview from "./BasePreview";
 
-export class BlpPreview extends BasePreview {
+export default class BlpPreview extends BasePreview {
 
     protected _imageSize: string | undefined;
     protected _imageZoom: number | 'fit';
@@ -13,10 +14,12 @@ export class BlpPreview extends BasePreview {
 
     getJSSource(): string[] {
         return [
+            '/media/message.js',
             '/media/jpgDecoder.js',
             '/media/blp2.js',
             '/media/binReader.js',
             '/media/tga.js',
+            '/media/main.js',
         ];
     }
 
@@ -28,6 +31,30 @@ export class BlpPreview extends BasePreview {
             <a href="#" class="open-file-link">Open file using VS Code's standard text/binary editor?</a>
         </div>
         `;
+    }
+
+    onMessage(message: any): void {
+        super.onMessage(message);
+        switch (message.type) {
+            case 'size':
+                {
+                    this._imageSize = message.value;
+                    this.update();
+                    break;
+                }
+            case 'zoom':
+                {
+                    this._imageZoom = message.value;
+                    this.update();
+                    break;
+                }
+
+            case 'reopen-as-text':
+                {
+                    vscode.commands.executeCommand('vscode.openWith', this.resource, 'default', this.webviewEditor.viewColumn);
+                    break;
+                }
+        }
     }
 
     onActive() {
