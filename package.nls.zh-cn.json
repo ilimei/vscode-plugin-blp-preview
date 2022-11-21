@@ -2,5 +2,7 @@
     "blpPreview.convert2png": "转换成png",
     "blpPreview.convert2jpg": "转换成jpg",
     "blpPreview.convert2blp": "转换成blp",
+    "blpPreview.convert2mdl": "转换成mdl",
+    "blpPreview.convert2mdx": "转换成mdx",
     "blpPreview.convertSuccess": "转换成功"
 }

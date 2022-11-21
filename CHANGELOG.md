@@ -35,3 +35,9 @@ remain context when hidden
 
 [0.1.6]
 fix bugs and support blp2
+
+[0.1.8]
+support png,jpg convert to blp, and blp convert to png,jpg
+
+[0.1.9]
+support mdl,mdx convert to mdx,mdl
