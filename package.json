@@ -2,7 +2,7 @@
 	"name": "blp-preview",
 	"displayName": "blp-preview",
 	"description": "blp1 image preview, tag image preview, mdx model preview",
-	"version": "0.1.8",
+	"version": "0.1.9",
 	"publisher": "hugehardzhang",
 	"icon": "icon.png",
 	"engines": {
@@ -17,8 +17,11 @@
 	],
 	"activationEvents": [
 		"onCustomEditor:blpPreview.previewEditor",
-		"onCommand:blpPreview.zoomIn",
-		"onCommand:blpPreview.zoomOut"
+		"onCommand:blpPreview.convert2png",
+		"onCommand:blpPreview.convert2jpg",
+		"onCommand:blpPreview.convert2blp",
+		"onCommand:blpPreview.convert2mdl",
+		"onCommand:blpPreview.convert2mdx"
 	],
 	"main": "./dist/extension.js",
 	"contributes": {
@@ -49,6 +52,16 @@
 				"command": "blpPreview.convert2blp",
 				"title": "%blpPreview.convert2blp%",
 				"category": "Blp Preview"
+			},
+			{
+				"command": "blpPreview.convert2mdl",
+				"title": "%blpPreview.convert2mdl%",
+				"category": "Blp Preview"
+			},
+			{
+				"command": "blpPreview.convert2mdx",
+				"title": "%blpPreview.convert2mdx%",
+				"category": "Blp Preview"
 			}
 		],
 		"menus": {
@@ -64,6 +77,14 @@
 				{
 					"when": "resourceExtname == .png || resourceExtname == .jpg || resourceExtname == .jpeg",
 					"command": "blpPreview.convert2blp"
+				},
+				{
+					"when": "resourceExtname == .mdx",
+					"command": "blpPreview.convert2mdl"
+				},
+				{
+					"when": "resourceExtname == .mdl",
+					"command": "blpPreview.convert2mdx"
 				}
 			]
 		},
@@ -109,6 +130,7 @@
 		"ts-loader": "^9.2.2",
 		"typescript": "^4.3.2",
 		"vscode-test": "^1.5.2",
+		"war3-model": "^2.2.1",
 		"webpack": "^5.38.1",
 		"webpack-cli": "^4.7.0"
 	},

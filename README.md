@@ -13,6 +13,9 @@ Supported blp convert to png and jpg
 Supported png and jpg convert to blp
 支持png和jpg转blp图片
 
+Supported mdl convert to mdx, mdx convert to mdl
+支持mdl和mdx相互转化
+
 Suppoerted war3 model formats:
 
 - `*.mdx`
