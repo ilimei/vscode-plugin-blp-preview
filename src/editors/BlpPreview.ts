@@ -19,7 +19,7 @@ export default class BlpPreview extends BasePreview {
             '/media/blp2.js',
             '/media/binReader.js',
             '/media/tga.js',
-            '/media/main.js',
+            '/media/blpPreview.js',
         ];
     }
 

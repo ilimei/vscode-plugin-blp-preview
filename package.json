@@ -2,7 +2,7 @@
 	"name": "blp-preview",
 	"displayName": "blp-preview",
 	"description": "blp1 image preview, tag image preview, mdx model preview",
-	"version": "0.1.9",
+	"version": "0.2.0",
 	"publisher": "hugehardzhang",
 	"icon": "icon.png",
 	"engines": {
@@ -135,8 +135,7 @@
 		"webpack-cli": "^4.7.0"
 	},
 	"dependencies": {
-		"pako": "^2.0.4",
-		"vscode-nls": "^5.0.0"
+		"pako": "^2.0.4"
 	},
 	"babel": {
 		"presets": [

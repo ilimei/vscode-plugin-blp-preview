@@ -1,5 +1,4 @@
 import * as fs from 'fs';
-import * as path from 'path';
 
 const { Image, TYPE_PNG, TYPE_JPEG, TYPE_BLP } = eval('require')('../bind/binding.node');
 
