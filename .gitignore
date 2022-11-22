@@ -4,3 +4,8 @@ node_modules
 .vscode-test/
 *.vsix
 *.fdf
+./media/*.map
+./media/mapPreview.js
+./media/message.js
+./media/modelPreview.js
+./media/blpPreview.js

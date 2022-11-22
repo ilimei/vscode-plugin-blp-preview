@@ -4,5 +4,6 @@
     "blpPreview.convert2blp": "转换成blp",
     "blpPreview.convert2mdl": "转换成mdl",
     "blpPreview.convert2mdx": "转换成mdx",
-    "blpPreview.convertSuccess": "转换成功"
+    "blpPreview.convertSuccess": "转换成功",
+    "blpPreview.saveBlpFolder": "选择"
 }
