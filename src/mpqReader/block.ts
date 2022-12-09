@@ -1,6 +1,8 @@
 import { inflate } from 'pako';
 import MpqArchive from "./archive";
 import explode from './explode';
+import decodeHuffman from './huffman';
+import decompressADPCM from './adpcm';
 import {
   COMPRESSION_ADPCM_MONO, COMPRESSION_ADPCM_STEREO, COMPRESSION_BZIP2, COMPRESSION_DEFLATE, COMPRESSION_HUFFMAN,
   COMPRESSION_IMPLODE, FILE_COMPRESSED, FILE_ENCRYPTED, FILE_EXISTS, FILE_IMPLODE, FILE_SINGLE_UNIT
@@ -61,7 +63,8 @@ export default class Block {
     const sectorCount = Math.ceil(this.normalSize / archive.sectorSize);
 
     // Alocate a buffer for the uncompressed block size
-    const buffer = new Uint8Array(this.normalSize);
+    const out: Uint8Array[] = [];
+    // const buffer = new Uint8Array(this.normalSize);
 
     // Get the sector offsets
     let sectorOffsets = new Uint32Array(data.buffer, 0, sectorCount + 1);
@@ -104,7 +107,8 @@ export default class Block {
       }
 
       // Add the sector bytes to the buffer
-      buffer.set(sector, offset);
+      // buffer.set(sector, offset);
+      out.push(sector);
       offset += sector.byteLength;
 
       // Prepare for the next sector
@@ -114,7 +118,10 @@ export default class Block {
       }
     }
 
-    return buffer;
+    return Uint8Array.from(out.reduce((acc, curr) => {
+      acc.push(...curr);
+      return acc;
+    }, []));
   }
 
   decompressSector(name: string, bytes: Uint8Array, decompressedSize: number): Uint8Array {
@@ -145,20 +152,30 @@ export default class Block {
       }
 
       if (compressionMask & COMPRESSION_HUFFMAN) {
-        // try {
-        //   bytes = decodeHuffman(bytes.subarray(1));
-        // } catch (e) {
-        //   throw new Error(`File ${this.name}: failed to decompress with 'huffman': ${e}`);
-        // }
-        throw new Error(`File ${name}: compression type 'huffman' not supported`);
+        try {
+          bytes = decodeHuffman(bytes.subarray(1));
+        } catch (e) {
+          throw new Error(`File ${name}: failed to decompress with 'huffman': ${e}`);
+        }
+        // throw new Error(`File ${name}: compression type 'huffman' not supported`);
       }
 
       if (compressionMask & COMPRESSION_ADPCM_STEREO) {
-        throw new Error(`File ${name}: compression type 'adpcm stereo' not supported`);
+        try {
+          bytes = decompressADPCM(bytes, 2, decompressedSize);
+        } catch (e) {
+          console.error(e);
+          throw new Error(`File ${name}: compression type 'adpcm stereo' not supported`);
+        }
       }
 
       if (compressionMask & COMPRESSION_ADPCM_MONO) {
-        throw new Error(`File ${name}: compression type 'adpcm mono' not supported`);
+        try {
+          bytes = decompressADPCM(bytes, 1, decompressedSize);
+        } catch (e) {
+          console.error(e);
+          throw new Error(`File ${name}: compression type 'adpcm mono' not supported`);
+        }
       }
 
       return bytes;

@@ -1,4 +1,8 @@
 import Message from "./message"
+import type { viewer } from 'mdx-m3-viewer';
+import glMatrix from "gl-matrix";
+import Model from "mdx-m3-viewer/dist/cjs/parsers/mdlx/model";
+
 declare global {
     const message: Message;
     const vscode: {
@@ -6,8 +10,17 @@ declare global {
         getState: () => any;
         setState: (data: any) => void;
     };
-    const ModelViewer: any;
-    const TGA: any;
-    const getImageData: any;
-    const decode: any;
+    interface Window {
+        ModelViewer: {
+            viewer: typeof viewer;
+            common: {
+                glMatrix: typeof glMatrix;
+            };
+            parsers: {
+                mdlx: {
+                    Model: typeof Model;
+                },
+            },
+        };
+    }
 }

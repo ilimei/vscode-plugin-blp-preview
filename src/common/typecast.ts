@@ -137,6 +137,16 @@ export function int16ToUint8(out: Uint8Array, a: number): Uint8Array {
 }
 
 /**
+ * Typecast a 16 bit signed integer to two 8 bit unsigned integers.
+ * 
+ * The result is stored in out.
+ */
+export function int16ToUint8Arr(a: number): [number, number] {
+  int16[0] = a;
+
+  return [uint8[0], uint8[1]];
+}
+/**
  * Typecast a 24 bit signed integer to three 8 bit unsigned integers.
  * 
  * The result is stored in out.

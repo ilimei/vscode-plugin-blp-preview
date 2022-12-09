@@ -9,11 +9,12 @@ import BasePreview from "./BasePreview";
 import BlpPreview from './BlpPreview';
 import MdxPreview from './MdxPreview';
 import W3EPreview from './W3EPreview';
+import AudioPreview from './AudioPreview';
 import ArchiveManager from '../mpqReader/manager';
 
 export default class PreviewGetter {
     private _mpqManager: ArchiveManager;
-    
+
     constructor(
         private readonly extensionRoot: vscode.Uri,
         public readonly sizeStatusBarEntry: SizeStatusBarEntry,
@@ -21,16 +22,16 @@ export default class PreviewGetter {
         public readonly zoomStatusBarEntry: ZoomStatusBarEntry,
     ) {
         const data = vscode.workspace.getConfiguration("blpPreview");
-		if (data && data.mpqLocation) {
-			if (fs.existsSync(data.mpqLocation)) {
-				this._mpqManager = new ArchiveManager();
-				this._mpqManager.load(data.mpqLocation).catch(e => {
-					this._mpqManager = null;
-					console.error(e);
-					vscode.window.showErrorMessage("mpq location is not a mpq file!");
-				});
-			}
-		}
+        if (data && data.mpqLocation) {
+            if (fs.existsSync(data.mpqLocation)) {
+                this._mpqManager = new ArchiveManager();
+                this._mpqManager.load(data.mpqLocation).catch(e => {
+                    this._mpqManager = null;
+                    console.error(e);
+                    vscode.window.showErrorMessage("mpq location is not a mpq file!");
+                });
+            }
+        }
     }
 
     public get mpqManager() {
@@ -47,6 +48,9 @@ export default class PreviewGetter {
                 return new MdxPreview(this.extensionRoot, document.uri, webviewEditor, this);
             case '.w3e':
                 return new W3EPreview(this.extensionRoot, document.uri, webviewEditor, this);
+            case '.wav':
+            case '.mp3':
+                return new AudioPreview(this.extensionRoot, document.uri, webviewEditor, this);
             default:
                 break;
         }

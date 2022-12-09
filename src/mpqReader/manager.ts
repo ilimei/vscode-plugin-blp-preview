@@ -1,19 +1,27 @@
 import MpqArchive from './archive';
 import FsPromise from './fspromise';
+import Task from '../common/task';
 import * as path from "path";
 
 
 export default class ArchiveManager {
-    archives: MpqArchive[];
+    archives: MpqArchive[] = [];
+    task: Task<boolean> | null = null;
 
     async load(mpqFilePath: string) {
+        if (this.task) {
+            await this.task;
+            return;
+        }
+        this.task = new Task();
         const root = path.dirname(mpqFilePath);
         const files = await FsPromise.readDir(root);
         this.archives = await Promise.all(files.filter(v => v.endsWith('.mpq')).map(async file => {
-            const archive = new MpqArchive();
+            const archive = new MpqArchive(path.basename(file));
             await archive.load(path.resolve(root, file));
             return archive;
         }));
+        this.task.resolve(true);
     }
 
     async get(name: string) {

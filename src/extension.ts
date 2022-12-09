@@ -9,6 +9,7 @@ import PreviewGetter from './editors';
 import blp2Image from './command/blp2img';
 import { mdl2mdx, mdx2mdl } from './command/mdl2mdx';
 import { init, localize } from './localize';
+import { MpqTreeProvider } from './MpqTreeProvider';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -18,7 +19,14 @@ export function activate(context: vscode.ExtensionContext) {
 
 	const { sizeStatusBarEntry, binarySizeStatusBarEntry, zoomStatusBarEntry } = activateBarEntry(context);
 
-	const editorProvider = new EditorProvider(new PreviewGetter(context.extensionUri, sizeStatusBarEntry, binarySizeStatusBarEntry, zoomStatusBarEntry));
+	const previewGetter = new PreviewGetter(context.extensionUri, sizeStatusBarEntry, binarySizeStatusBarEntry, zoomStatusBarEntry);
+
+	const editorProvider = new EditorProvider(previewGetter);
+
+	const mpqProvider = new MpqTreeProvider(previewGetter.mpqManager);
+
+	context.subscriptions.push(vscode.window.registerTreeDataProvider('blpPreview.mpqExplorer', mpqProvider));
+	context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider('mpq', mpqProvider))
 
 	context.subscriptions.push(vscode.window.registerCustomEditorProvider(EditorProvider.viewType, editorProvider, {
 		supportsMultipleEditorsPerDocument: true,
@@ -128,6 +136,14 @@ export function activate(context: vscode.ExtensionContext) {
 		edit.createFile(distPath, { ignoreIfExists: true });
 		mdl2mdx(uri.fsPath, distPath.fsPath);
 		await vscode.window.showInformationMessage(localize("blpPreview.convertSuccess", "convert success"));
+	}));
+
+	context.subscriptions.push(vscode.commands.registerCommand('blpPreview.openMpq', async (uri: vscode.Uri) => {
+		if (['.mdx', '.blp', '.tga', '.wav', '.mp3'].includes(path.extname(uri.path).toLowerCase())) {
+			vscode.commands.executeCommand('vscode.openWith', uri, EditorProvider.viewType);
+		} else {
+			vscode.window.showTextDocument(uri);
+		}
 	}));
 }
 

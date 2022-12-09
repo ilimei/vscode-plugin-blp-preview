@@ -16,8 +16,10 @@ export default class MpqArchive {
   blockTable: MpqBlockTable;
   readonly: boolean = false;
   fd: number;
+  name: string;
 
-  constructor() {
+  constructor(name: string) {
+    this.name = name;
     this.headerOffset = 0;
     this.sectorSize = 4096;
     this.c = new MpqCrypto();

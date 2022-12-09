@@ -44,3 +44,6 @@ support mdl,mdx convert to mdx,mdl
 
 [0.2.0]
 support blp,jpg,png multiple translate
+
+[0.2.2]
+add grid support

@@ -48,10 +48,17 @@ export default class Message {
     }
 
     async load() {
-        const buf = await vscode.workspace.fs.readFile(this.resource);
-        const imgPath = this.resource.fsPath;
-        const extName = imgPath.split(/\./g).pop();
-        return { ext: extName, buf: new Uint8Array(buf).buffer };
+        if (this.resource.scheme === 'mpq') {
+            const [first, ...rest] = this.resource.path.split(/\\/);
+            const data = await this.mpqManager.get(rest.join('\\'));
+            const extName = this.resource.path.split(/\./g).pop();
+            return { ext: extName, buf: new Uint8Array(data).buffer };
+        } else {
+            const buf = await vscode.workspace.fs.readFile(this.resource);
+            const imgPath = this.resource.fsPath;
+            const extName = imgPath.split(/\./g).pop();
+            return { ext: extName, buf: new Uint8Array(buf).buffer };
+        }
     }
 
     async _loadSource(path: string, deep: number = -1) {

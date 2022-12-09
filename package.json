@@ -2,7 +2,7 @@
 	"name": "blp-preview",
 	"displayName": "blp-preview",
 	"description": "blp1 image preview, tag image preview, mdx model preview",
-	"version": "0.2.0",
+	"version": "0.2.2",
 	"publisher": "hugehardzhang",
 	"icon": "icon.png",
 	"engines": {
@@ -17,6 +17,7 @@
 	],
 	"activationEvents": [
 		"onCustomEditor:blpPreview.previewEditor",
+		"onView:blpPreview.mpqExplorer",
 		"onCommand:blpPreview.convert2png",
 		"onCommand:blpPreview.convert2jpg",
 		"onCommand:blpPreview.convert2blp",
@@ -25,6 +26,25 @@
 	],
 	"main": "./dist/extension.js",
 	"contributes": {
+		"viewsContainers": {
+			"activitybar": [
+				{
+					"id": "blpPreviewMpqExplorer",
+					"title": "mpq Explorer",
+					"icon": "media/mpq.svg"
+				}
+			]
+		},
+		"views": {
+			"blpPreviewMpqExplorer": [
+				{
+					"id": "blpPreview.mpqExplorer",
+					"name": "mpq Explorer",
+					"icon": "media/mpq.svg",
+					"contextualTitle": "blpPreview"
+				}
+			]
+		},
 		"customEditors": [
 			{
 				"viewType": "blpPreview.previewEditor",
@@ -125,8 +145,9 @@
 		"file-loader": "^6.2.0",
 		"gl-matrix": "^3.3.0",
 		"glob": "^7.1.7",
-		"mdx-m3-viewer": "^5.8.2",
+		"mdx-m3-viewer": "^5.12.0",
 		"mocha": "^8.4.0",
+		"raw-loader": "^4.0.2",
 		"ts-loader": "^9.2.2",
 		"typescript": "^4.3.2",
 		"vscode-test": "^1.5.2",
@@ -135,7 +156,8 @@
 		"webpack-cli": "^4.7.0"
 	},
 	"dependencies": {
-		"pako": "^2.0.4"
+		"pako": "^2.0.4",
+		"vscode-nls": "^5.2.0"
 	},
 	"babel": {
 		"presets": [

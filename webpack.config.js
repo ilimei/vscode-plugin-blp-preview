@@ -14,6 +14,7 @@ const config = {
     'media/mapPreview': './src/mapPreview/index.ts',
     'media/message': './src/modelPreview/message.ts',
     'media/blpPreview': './src/blpPreview/index.ts',
+    'media/audioPreview': './src/audioPreview/index.ts',
     'dist/extension': './src/extension.ts'
   }, // the entry point of this extension, 📖 -> https://webpack.js.org/configuration/entry-context/
   output: {

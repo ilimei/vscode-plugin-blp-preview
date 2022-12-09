@@ -162,7 +162,7 @@ export default class BasePreview extends Disposable {
             return `<link rel="stylesheet" href="${escapeAttribute(this.extensionResource(source))}" type="text/css" media="screen" nonce="${nonce}">`
         }).join('\n')
             }
-        <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data: ${cspSource}; script-src 'nonce-${nonce}'; style-src ${cspSource} 'nonce-${nonce}';">
+        <meta http-equiv="Content-Security-Policy" content="default-src 'none';media-src * blob:; img-src data: ${cspSource}; script-src 'nonce-${nonce}'; style-src ${cspSource} 'nonce-${nonce}';">
         <meta id="image-preview-settings" data-settings="${escapeAttribute(JSON.stringify(settings))}">
     </head>
     <body class="container image scale-to-fit loading">
