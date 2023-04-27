@@ -16,7 +16,7 @@ export default class AudioPreview extends BasePreview {
 
     getHTMLTempalte(): string {
         return `
-        <div class="container" dropzone="copy">
+        <div class="container audio" dropzone="copy">
             <audio controls id="audio" style="position:absolute;left:50%;transform:translateX(-100%); bottom: 40px;"></audio>
         </div>
         `;

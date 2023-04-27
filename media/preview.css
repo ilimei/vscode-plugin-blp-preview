@@ -47,6 +47,12 @@ a:focus, input:focus, select:focus, textarea:focus {
     height: 100%;
 }
 
+.container.audio {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .inner {
     position: relative;
     display: flex;

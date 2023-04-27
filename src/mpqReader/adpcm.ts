@@ -1,5 +1,3 @@
-import { int16ToUint8Arr } from "../common/typecast";
-
 const INITIAL_ADPCM_STEP_INDEX = 0x2C;
 const CHANGE_TABLE = [
     -1, 0, -1, 4, -1, 2, -1, 6,
@@ -22,7 +20,7 @@ const STEP_TABLE = [
     32767
 ];
 
-const STEP_TABLE_LENGTH = 89;
+const STEP_TABLE_LENGTH = STEP_TABLE.length - 1;
 
 class ADPCMChannel {
     public sampleValue: number;
@@ -83,9 +81,8 @@ class TADPCMOutStream {
         if (this.max - this.data.length < 2) {
             return false;
         }
-        const [a1, a2] = int16ToUint8Arr(value);
-        this.data.push(a1);
-        this.data.push(a2);
+        this.data.push(value & 0xFF);
+        this.data.push((value >> 0x08) & 0xFF);
         return true;
     }
 }
@@ -131,14 +128,13 @@ class ADPCM {
                         }
                         out.writeWordSample(chan.sampleValue);
 
-                        // current = (current + 1) % channeln;
                         break;
 
                     // increment period
                     case 1:
                         chan.stepIndex += 8;
-                        if (chan.stepIndex >= STEP_TABLE.length) {
-                            chan.stepIndex = (STEP_TABLE.length - 1);
+                        if (chan.stepIndex > STEP_TABLE_LENGTH) {
+                            chan.stepIndex = STEP_TABLE_LENGTH;
                         }
                         current = (current + 1) % channeln;
                         break;
@@ -164,7 +160,7 @@ class ADPCM {
                 let step = unsignedRightShift(stepbase, stepshift);
 
                 for (let i = 0; i < 6; i++) {
-                    if ((op & 1 << i) !== 0) {
+                    if ((op & (1 << i)) !== 0) {
                         step += unsignedRightShift(stepbase, i);
                     }
                 }
@@ -180,8 +176,8 @@ class ADPCM {
                 chan.stepIndex += CHANGE_TABLE[op & 0x1F];
                 if (chan.stepIndex < 0) {
                     chan.stepIndex = 0;
-                } else if (chan.stepIndex >= STEP_TABLE.length) {
-                    chan.stepIndex = (STEP_TABLE.length - 1);
+                } else if (chan.stepIndex > STEP_TABLE_LENGTH) {
+                    chan.stepIndex = STEP_TABLE_LENGTH;
                 }
             }
         }
