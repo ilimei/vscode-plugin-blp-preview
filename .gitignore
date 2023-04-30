@@ -4,3 +4,6 @@ node_modules
 .vscode-test/
 *.vsix
 *.fdf
+media/*.map
+media/*.css
+media/*.js

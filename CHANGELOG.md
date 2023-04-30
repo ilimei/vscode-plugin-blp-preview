@@ -41,3 +41,12 @@ support png,jpg convert to blp, and blp convert to png,jpg
 
 [0.1.9]
 support mdl,mdx convert to mdx,mdl
+
+[0.2.0]
+support blp,jpg,png multiple translate
+
+[0.2.2]
+add grid support
+
+[0.2.3]
+support mpq audio play
