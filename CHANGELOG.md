@@ -47,3 +47,6 @@ support blp,jpg,png multiple translate
 
 [0.2.2]
 add grid support
+
+[0.2.3]
+support mpq audio play

@@ -5,7 +5,5 @@ node_modules
 *.vsix
 *.fdf
 media/*.map
-media/mapPreview.js
-media/message.js
-media/modelPreview.js
-media/blpPreview.js
+media/*.css
+media/*.js

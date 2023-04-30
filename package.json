@@ -2,7 +2,7 @@
 	"name": "blp-preview",
 	"displayName": "blp-preview",
 	"description": "blp1 image preview, tag image preview, mdx model preview",
-	"version": "0.2.2",
+	"version": "0.2.3",
 	"publisher": "hugehardzhang",
 	"icon": "icon.png",
 	"engines": {
@@ -31,7 +31,7 @@
 				{
 					"id": "blpPreviewMpqExplorer",
 					"title": "mpq Explorer",
-					"icon": "media/mpq.svg"
+					"icon": "media/resource/mpq.svg"
 				}
 			]
 		},
@@ -40,7 +40,7 @@
 				{
 					"id": "blpPreview.mpqExplorer",
 					"name": "mpq Explorer",
-					"icon": "media/mpq.svg",
+					"icon": "media/resource/mpq.svg",
 					"contextualTitle": "blpPreview"
 				}
 			]
@@ -82,9 +82,20 @@
 				"command": "blpPreview.convert2mdx",
 				"title": "%blpPreview.convert2mdx%",
 				"category": "Blp Preview"
+			},
+			{
+				"command": "blpPreview.copyPath",
+				"title": "%blpPreview.copyPath%",
+				"category": "Blp Preview"
 			}
 		],
 		"menus": {
+			"view/item/context": [
+				{
+					"command": "blpPreview.copyPath",
+					"when": "view == blpPreview.mpqExplorer && viewItem == file"
+				}
+			],
 			"explorer/context": [
 				{
 					"when": "resourceExtname == .blp",
@@ -141,12 +152,15 @@
 		"@typescript-eslint/eslint-plugin": "^4.26.0",
 		"@typescript-eslint/parser": "^4.26.0",
 		"babel-loader": "^8.2.2",
+		"css-loader": "^6.7.3",
 		"eslint": "^7.27.0",
 		"file-loader": "^6.2.0",
 		"gl-matrix": "^3.3.0",
 		"glob": "^7.1.7",
+		"less-loader": "^11.1.0",
 		"mdx-m3-viewer": "^5.12.0",
-		"mocha": "^8.4.0",
+		"mini-css-extract-plugin": "^2.7.5",
+		"mocha": "^10.2.0",
 		"raw-loader": "^4.0.2",
 		"ts-loader": "^9.2.2",
 		"typescript": "^4.3.2",
