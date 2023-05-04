@@ -82,17 +82,29 @@ export default class MpqArchive {
     this.blockTable.load(blockTableBuf.valueOf());
   }
 
+  has(name: string) {
+    const hash = this.hashTable.get(name);
+    if (!hash) {
+      return false;
+    }
+    const block = this.blockTable.entries[hash.blockIndex];
+    if (!block) {
+      return false;
+    }
+    return true;
+  }
+
   async get(name: string): Promise<Uint8Array> {
     const hash = this.hashTable.get(name);
-    if(!hash) {
+    if (!hash) {
       return null;
     }
     const block = this.blockTable.entries[hash.blockIndex];
-    if(!block) {
+    if (!block) {
       return null;
     }
     const blpBuffer = Buffer.alloc(block.compressedSize);
-    await FsPromise.read(this.fd, blpBuffer, 0, blpBuffer.length, block.offset);
+    await FsPromise.read(this.fd, blpBuffer, 0, blpBuffer.length, this.headerOffset + block.offset);
     return block.decode(name, new Uint8Array(blpBuffer), this);
   }
 }

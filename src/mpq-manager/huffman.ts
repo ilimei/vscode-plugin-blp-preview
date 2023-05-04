@@ -492,7 +492,6 @@ class THuffmanTree implements ITtreeNode {
             if (!pHigherItem.pNext) {
                 let p: THTreeItem | null = this.pFirst;
                 while (p && p !== this.pLast) {
-                    console.info(p);
                     p = p.pNext;
                 }
             }

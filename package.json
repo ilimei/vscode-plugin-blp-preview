@@ -2,7 +2,7 @@
 	"name": "blp-preview",
 	"displayName": "blp-preview",
 	"description": "blp1 image preview, tag image preview, mdx model preview",
-	"version": "0.2.3",
+	"version": "0.2.4",
 	"publisher": "hugehardzhang",
 	"icon": "icon.png",
 	"engines": {
@@ -18,6 +18,8 @@
 	"activationEvents": [
 		"onCustomEditor:blpPreview.previewEditor",
 		"onView:blpPreview.mpqExplorer",
+		"onView:w3xExplorer",
+		"onCommand:zipexplorer.exploreW3XFile",
 		"onCommand:blpPreview.convert2png",
 		"onCommand:blpPreview.convert2jpg",
 		"onCommand:blpPreview.convert2blp",
@@ -36,6 +38,12 @@
 			]
 		},
 		"views": {
+			"explorer": [
+				{
+					"id": "w3xExplorer",
+					"name": "w3x Explorer"
+				}
+			],
 			"blpPreviewMpqExplorer": [
 				{
 					"id": "blpPreview.mpqExplorer",
@@ -58,6 +66,21 @@
 			}
 		],
 		"commands": [
+			{
+				"command": "blpPreview.exploreW3XFile",
+				"title": "%blpPreview.exploreW3XFile%",
+				"category": "Blp Preview"
+			},
+			{
+				"command": "blpPreview.w3xExplorerClear",
+				"title": "%blpPreview.w3xExplorerClear%",
+				"category": "Blp Preview"
+			},
+			{
+				"command": "blpPreview.extractFile",
+				"title": "%blpPreview.extractFile%",
+				"category": "Blp Preview"
+			},
 			{
 				"command": "blpPreview.convert2png",
 				"title": "%blpPreview.convert2png%",
@@ -90,13 +113,27 @@
 			}
 		],
 		"menus": {
+			"view/title": [
+				{
+					"command": "blpPreview.w3xExplorerClear",
+					"when": "view == w3xExplorer"
+				}
+			],
 			"view/item/context": [
 				{
 					"command": "blpPreview.copyPath",
 					"when": "view == blpPreview.mpqExplorer && viewItem == file"
+				},
+				{
+					"command": "blpPreview.extractFile",
+					"when": "view == w3xExplorer && viewItem == file"
 				}
 			],
 			"explorer/context": [
+				{
+					"command": "blpPreview.exploreW3XFile",
+					"when": "resourceExtname == .w3x"
+				},
 				{
 					"when": "resourceExtname == .blp",
 					"command": "blpPreview.convert2png"

@@ -1,4 +1,8 @@
 {
+    "blpPreview.exploreW3XFile": "explore w3x file",
+    "blpPreview.w3xExplorerClear": "clear",
+    "blpPreview.extractFile": "extract file",
+    "blpPreview.extractSuccess": "extract success",
     "blpPreview.convert2png": "convert to png",
     "blpPreview.convert2jpg": "convert to jpg",
     "blpPreview.convert2blp": "convert to blp",

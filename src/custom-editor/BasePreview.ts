@@ -57,7 +57,7 @@ export default class BasePreview extends Disposable {
             ]
         };
 
-        this.message = new Message(webviewEditor.webview, MpqManager.instance, resource, resourceRoot);
+        this.message = new Message(webviewEditor.webview, MpqManager.instance, resource, resourceRoot, ctx);
 
         this._register(webviewEditor.webview.onDidReceiveMessage(message => {
             this.onMessage(message);

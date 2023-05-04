@@ -1,4 +1,8 @@
 {
+    "blpPreview.exploreW3XFile": "浏览w3x文件",
+    "blpPreview.w3xExplorerClear": "清空",
+    "blpPreview.extractFile": "提取文件",
+    "blpPreview.extractSuccess": "提取成功",
     "blpPreview.convert2png": "转换成png",
     "blpPreview.convert2jpg": "转换成jpg",
     "blpPreview.convert2blp": "转换成blp",
