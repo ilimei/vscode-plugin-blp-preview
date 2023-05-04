@@ -4,6 +4,7 @@
 import * as vscode from 'vscode';
 import * as http from "https";
 import ArchiveManager from '../mpq-manager/manager';
+import { BlpPreviewContext } from '../extension';
 
 function request(url: string): Promise<{ buf: Buffer, ext: string }> {
     return new Promise((resolve) => {
@@ -39,7 +40,8 @@ export default class Message {
     constructor(private webview: vscode.Webview,
         private mpqManager: ArchiveManager,
         private resource: vscode.Uri,
-        private resourceRoot: vscode.Uri) {
+        private resourceRoot: vscode.Uri,
+        private ctx: BlpPreviewContext) {
         const rootFolder = vscode.workspace.workspaceFolders?.find(v => {
             return this.resourceRoot.path.startsWith(v.uri.path);
         });
@@ -48,7 +50,14 @@ export default class Message {
     }
 
     async load() {
-        if (this.resource.scheme === 'mpq') {
+        if (this.resource.scheme === 'w3x') {
+            if (this.ctx.w3xTreeProvider) {
+                const data = await this.ctx.w3xTreeProvider.getBufferContent(this.resource);
+                const extName = this.resource.path.split(/\./g).pop();
+                return { ext: extName, buf: new Uint8Array(data).buffer };
+            }
+            throw new Error('no data found');
+        } else if (this.resource.scheme === 'mpq') {
             const [first, ...rest] = this.resource.path.split(/\\/);
             const data = await this.mpqManager.get(rest.join('\\'));
             const extName = this.resource.path.split(/\./g).pop();
@@ -62,6 +71,14 @@ export default class Message {
     }
 
     async _loadSource(path: string, deep: number = -1) {
+        if (this.resource.scheme === 'w3x') {
+            if (this.ctx.w3xTreeProvider) {
+                const data = await this.ctx.w3xTreeProvider.getBufferContent(this.resource.with({
+                    path: this.resource.path.replace(/\.w3x[\s\S]+$/, '.w3x') + '\\' + path
+                }));
+                return new Uint8Array(data).buffer;
+            }
+        }
         const blpURI = vscode.Uri.joinPath(this.resourceRoot, path);
         return vscode.workspace.fs.stat(blpURI).then(async () => {
             const buf = await vscode.workspace.fs.readFile(blpURI);

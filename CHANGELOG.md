@@ -50,3 +50,6 @@ add grid support
 
 [0.2.3]
 support mpq audio play
+
+[0.2.4]
+support w3x file explorer

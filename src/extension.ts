@@ -10,6 +10,7 @@ import { activateBarEntry } from './bar-entry';
 import { registerCommands } from './command';
 import { registerCustomEditorProvider } from './custom-editor';
 import { registerTreeProvider } from './tree-provider';
+import { W3XTreeProvider } from './tree-provider/w3x/w3x-tree-data-provider';
 
 export type BlpPreviewContext = {
 	extensionUri: vscode.Uri;
@@ -17,6 +18,7 @@ export type BlpPreviewContext = {
 	binarySizeStatusBarEntry: BinarySizeStatusBarEntry;
 	zoomStatusBarEntry: ZoomStatusBarEntry;
 	edit: vscode.WorkspaceEdit;
+	w3xTreeProvider?: W3XTreeProvider;
 };
 
 // this method is called when your extension is activated

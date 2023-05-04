@@ -14,7 +14,7 @@ export class MpqItemNode extends vscode.TreeItem {
         this.contextValue = 'folder';
         if (this.node.isLeaf()) {
             this.contextValue = 'file';
-            this.command = {
+            this.command = command || {
                 title: 'Open with mpq',
                 command: 'blpPreview.openMpq',
                 arguments: [this.resourceUri],
