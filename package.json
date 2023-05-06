@@ -2,7 +2,7 @@
 	"name": "blp-preview",
 	"displayName": "blp-preview",
 	"description": "blp1 image preview, tag image preview, mdx model preview",
-	"version": "0.2.4",
+	"version": "0.2.5",
 	"publisher": "hugehardzhang",
 	"icon": "icon.png",
 	"engines": {
@@ -60,7 +60,7 @@
 				"priority": "default",
 				"selector": [
 					{
-						"filenamePattern": "*.{blp,tga,mdx,mdl,w3e}"
+						"filenamePattern": "*.{blp,tga,mdx,mdl,w3e,slk}"
 					}
 				]
 			}

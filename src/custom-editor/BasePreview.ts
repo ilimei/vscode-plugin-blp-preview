@@ -37,6 +37,7 @@ export default class BasePreview extends Disposable {
     protected _previewState = ViewState.visible;
     protected _imageBinarySize: number | undefined;
     protected message: Message;
+    protected nonce = getNonce();
 
 
     constructor(
@@ -148,7 +149,7 @@ export default class BasePreview extends Disposable {
             isMac: isMac(),
         };
 
-        const nonce = getNonce();
+        const nonce = this.nonce;
         const cspSource = this.webviewEditor.webview.cspSource;
 
         return /* html */`<!DOCTYPE html>

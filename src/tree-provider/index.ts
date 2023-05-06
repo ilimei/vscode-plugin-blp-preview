@@ -43,7 +43,7 @@ export function registerTreeProvider(context: vscode.ExtensionContext, ctx: BlpP
     }));
     
     context.subscriptions.push(vscode.commands.registerCommand('blpPreview.openW3X', (uri: Uri) => {
-        if (['.mdx', '.blp', '.tga', '.wav', '.mp3'].includes(path.extname(uri.path).toLowerCase())) {
+        if (['.mdx', '.blp', '.tga', '.wav', '.mp3', '.slk'].includes(path.extname(uri.path).toLowerCase())) {
             // https://code.visualstudio.com/api/references/commands
             // https://vshaxe.github.io/vscode-extern/vscode/TextDocumentShowOptions.html#preview
             vscode.commands.executeCommand('vscode.openWith', uri, EditorProvider.viewType, { preview: true });
