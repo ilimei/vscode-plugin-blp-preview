@@ -17,6 +17,19 @@ export default class MpqArchive {
   readonly: boolean = false;
   fd: number;
   name: string;
+  promise: Promise<void>;
+
+  static cache: Map<string, MpqArchive> = new Map();
+
+  static getByPath(mpqFilePath: string) {
+    if (this.cache[mpqFilePath]) {
+      return this.cache[mpqFilePath];
+    }
+    const archive = new MpqArchive(mpqFilePath);
+    archive.promise = archive.load(mpqFilePath);
+    this.cache[mpqFilePath] = archive;
+    return archive;
+  }
 
   constructor(name: string) {
     this.name = name;
@@ -104,7 +117,7 @@ export default class MpqArchive {
       return null;
     }
     // 空文件
-    if(block.compressedSize === 0) {
+    if (block.compressedSize === 0) {
       return new Uint8Array(0);
     }
     const blpBuffer = Buffer.alloc(block.compressedSize);

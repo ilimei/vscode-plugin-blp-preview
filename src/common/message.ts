@@ -5,6 +5,7 @@ import * as vscode from 'vscode';
 import * as http from "https";
 import ArchiveManager from '../mpq-manager/manager';
 import { BlpPreviewContext } from '../extension';
+import MpqArchive from '../mpq-manager/archive';
 
 function request(url: string): Promise<{ buf: Buffer, ext: string }> {
     return new Promise((resolve) => {
@@ -54,8 +55,11 @@ export default class Message {
 
     async load() {
         if (this.resource.scheme === 'w3x') {
-            if (this.ctx.w3xTreeProvider) {
-                const data = await this.ctx.w3xTreeProvider.getBufferContent(this.resource);
+            const [fsPath, resourcePath] = this.resource.fsPath.split(/\.w3x/);
+            const mpq = MpqArchive.getByPath(fsPath + '.w3x');
+            await mpq.promise;
+            const data = await mpq.get(resourcePath.slice(1));
+            if (data) {
                 const extName = this.resource.path.split(/\./g).pop();
                 this.size = data.length;
                 this._onSizeChange.fire(this.size);
@@ -81,12 +85,18 @@ export default class Message {
 
     async _loadSource(path: string, deep: number = -1) {
         if (this.resource.scheme === 'w3x') {
-            if (this.ctx.w3xTreeProvider) {
-                const data = await this.ctx.w3xTreeProvider.getBufferContent(this.resource.with({
-                    path: this.resource.path.replace(/\.w3x[\s\S]+$/, '.w3x') + '\\' + path
-                }));
-                return new Uint8Array(data).buffer;
+            const [fsPath] = this.resource.fsPath.split(/\.w3x/);
+            const mpq = MpqArchive.getByPath(fsPath + '.w3x');
+            const data = await mpq.get(path);
+            if (!data) {
+                if (this.mpqManager) {
+                    const buf = await this.mpqManager.get(path.replace(/\//g, '\\'));
+                    if (buf) {
+                        return new Uint8Array(buf).buffer;
+                    }
+                }
             }
+            return new Uint8Array(data).buffer;
         }
         const blpURI = vscode.Uri.joinPath(this.resourceRoot, path);
         return vscode.workspace.fs.stat(blpURI).then(async () => {
@@ -177,7 +187,7 @@ export default class Message {
     }
 
     async onMessage(message: { type: string, requestId: number, data: any }) {
-        if(!this[message.type] || typeof this[message.type] !== 'function') {
+        if (!this[message.type] || typeof this[message.type] !== 'function') {
             throw new Error(`message.type ${message.type} method not found`);
         }
         if (this[message.type]) {

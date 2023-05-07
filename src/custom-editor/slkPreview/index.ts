@@ -48,8 +48,6 @@ const s = x_spreadsheet("#example", {
     }
 });
 
-console.info(window.currentResourceURI);
-
 message.load().then((data) => {
     if (window.currentResourceURI.path.toLowerCase().endsWith('.slk')) {
         const decoder = new TextDecoder('utf-8');
@@ -175,6 +173,7 @@ message.load().then((data) => {
             'name',
             'description',
             'recommendedPlayers',
+            'tileset',
         ].forEach(row => {
             const key = typeof row === 'string' ? row : row.key;
             const value = typeof row === 'string' ? w3i[key] : row.value();
