@@ -57,6 +57,14 @@ export class W3XTreeProvider implements vscode.TreeDataProvider<MpqItemNode | W3
         return this.model.getBufferContent(uri.path.slice(1));
     }
 
+    async extractMdxWithTextures(uri: vscode.Uri): Promise<{
+        model: ArrayBuffer;
+        blps: Uint8Array[];
+        names: string[];
+    }> {
+        return this.model.extractMdxWithTextures(uri.path.slice(1));
+    }
+
     async getChildren(element?: MpqItemNode | W3XRoot): Promise<Array<W3XRoot | MpqItemNode>> {
         if (!element) {
             return Promise.resolve(this.model.roots);

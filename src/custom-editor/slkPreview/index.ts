@@ -174,6 +174,7 @@ message.load().then((data) => {
             'description',
             'recommendedPlayers',
             'tileset',
+            'loadingScreenModel',
         ].forEach(row => {
             const key = typeof row === 'string' ? row : row.key;
             const value = typeof row === 'string' ? w3i[key] : row.value();

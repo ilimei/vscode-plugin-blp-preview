@@ -1,6 +1,7 @@
 import {
     window, Uri, TreeItem, TreeItemCollapsibleState, Command,
 } from 'vscode';
+import { parseMDX, generateMDX } from 'war3-model';
 import MpqArchive from '../../mpq-manager/archive';
 import MpqTreeHelperNode from '../mpq/mpq-tree-helper-node';
 import txt from 'raw-loader!./file-list.txt';
@@ -8,6 +9,7 @@ import { IniFile } from '../../parser/ini';
 import SlkFile from '../../parser/slk';
 import War3MapW3d from '../../parser/w3d';
 import War3MapW3u from '../../parser/w3u';
+import War3MapW3i from '../../parser/w3i';
 
 export class W3XRoot extends TreeItem {
     private _mpq: MpqArchive;
@@ -71,7 +73,15 @@ export class W3XRoot extends TreeItem {
                 continue;
             }
             root.addFile(name);
-            if (['war3map.w3d', 'war3map.w3b', 'war3map.w3u'].includes(name)) {
+            if ('war3map.w3i' === name) {
+                promises.push(mpq.get(name).then((data) => {
+                    const w3i = new War3MapW3i();
+                    w3i.load(data);
+                    if (w3i.loadingScreenModel) {
+                        addMdl(w3i.loadingScreenModel);
+                    }
+                }));
+            } else if (['war3map.w3d', 'war3map.w3b', 'war3map.w3u'].includes(name)) {
                 promises.push(mpq.get(name).then((data) => {
                     const w3d = ['war3map.w3b', 'war3map.w3u'].includes(name) ? new War3MapW3u() : new War3MapW3d();
                     w3d.load(data);
@@ -144,6 +154,25 @@ export class W3XRoot extends TreeItem {
         const name = uri.slice(this._uri.path.length);
         await this._promise;
         return await this._mpq.get(name);
+    }
+
+    async extractMdxWithTextures(uri: string) {
+        const name = uri.slice(this._uri.path.length);
+        await this._promise;
+        const data = await this._mpq.get(name);
+        const model = parseMDX(data.buffer);
+        const names: string[] = [];
+        const pms = model.Textures.filter(tex => {
+            return this._mpq.has(tex.Image);
+        }).map(tex => {
+            const orign = tex.Image;
+            tex.Image = 'textures\\' + orign.split(/\\/g).pop();
+            names.push(tex.Image);
+            return this._mpq.get(orign);
+        });
+
+        const blps = await Promise.all(pms);
+        return { model: generateMDX(model), blps, names };
     }
 
     contextValue = 'w3x';

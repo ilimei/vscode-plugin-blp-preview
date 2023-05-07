@@ -2,6 +2,7 @@
     "blpPreview.exploreW3XFile": "explore w3x file",
     "blpPreview.w3xExplorerClear": "clear",
     "blpPreview.extractFile": "extract file",
+    "blpPreview.extractFileWithTexture": "extract file with texture",
     "blpPreview.extractSuccess": "extract success",
     "blpPreview.convert2png": "convert to png",
     "blpPreview.convert2jpg": "convert to jpg",
