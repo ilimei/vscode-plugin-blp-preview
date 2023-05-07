@@ -9,7 +9,12 @@ Supported image formats:
 
 Supported slk formats:
 
-- `*.tga`
+- `*.slk`
+- `*.mmp`
+- `*.w3c`
+- `*.w3i`
+
+Supported explore w3x file
 
 Supported blp convert to png and jpg
 支持blp图片转png和jpg

@@ -35,7 +35,10 @@ function request(url: string): Promise<{ buf: Buffer, ext: string }> {
 export default class Message {
 
     maxDeep = 0;
+    size = 0;
     rootFolder: vscode.Uri;
+    private _onSizeChange: vscode.EventEmitter<number> = new vscode.EventEmitter<number>();
+    readonly onSizeChange: vscode.Event<number> = this._onSizeChange.event;
 
     constructor(private webview: vscode.Webview,
         private mpqManager: ArchiveManager,
@@ -54,6 +57,8 @@ export default class Message {
             if (this.ctx.w3xTreeProvider) {
                 const data = await this.ctx.w3xTreeProvider.getBufferContent(this.resource);
                 const extName = this.resource.path.split(/\./g).pop();
+                this.size = data.length;
+                this._onSizeChange.fire(this.size);
                 return { ext: extName, buf: new Uint8Array(data).buffer };
             }
             throw new Error('no data found');
@@ -61,11 +66,15 @@ export default class Message {
             const [first, ...rest] = this.resource.path.split(/\\/);
             const data = await this.mpqManager.get(rest.join('\\'));
             const extName = this.resource.path.split(/\./g).pop();
+            this.size = data.length;
+            this._onSizeChange.fire(this.size);
             return { ext: extName, buf: new Uint8Array(data).buffer };
         } else {
             const buf = await vscode.workspace.fs.readFile(this.resource);
             const imgPath = this.resource.fsPath;
             const extName = imgPath.split(/\./g).pop();
+            this.size = buf.length;
+            this._onSizeChange.fire(this.size);
             return { ext: extName, buf: new Uint8Array(buf).buffer };
         }
     }
@@ -168,6 +177,9 @@ export default class Message {
     }
 
     async onMessage(message: { type: string, requestId: number, data: any }) {
+        if(!this[message.type] || typeof this[message.type] !== 'function') {
+            throw new Error(`message.type ${message.type} method not found`);
+        }
         if (this[message.type]) {
             const ret = await this[message.type](message.data);
             this.webview.postMessage({ requestId: message.requestId, data: ret });

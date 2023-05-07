@@ -29,6 +29,9 @@ export default class EditorProvider implements vscode.CustomReadonlyEditorProvid
 			case '.wav':
 			case '.mp3':
 				return new AudioPreview(this.extensionRoot, document.uri, webviewEditor, this.ctx);
+			case '.mmp':
+			case '.w3c':
+			case '.w3i':
 			case '.slk':
 				return new SlkPreview(this.extensionRoot, document.uri, webviewEditor, this.ctx);
 			default:

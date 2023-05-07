@@ -22,14 +22,14 @@ export default class SlkPreview extends BasePreview {
     }
 
     onActive() {
-        // this.ctx.binarySizeStatusBarEntry.show(this.id, this._imageBinarySize);
+        this.ctx.binarySizeStatusBarEntry.show(this.id, this._imageBinarySize);
     }
 
     onVisible(): void {
-        // this.ctx.binarySizeStatusBarEntry.hide(this.id);
+        this.ctx.binarySizeStatusBarEntry.hide(this.id);
     }
 
     onDispose(): void {
-        // this.ctx.binarySizeStatusBarEntry.hide(this.id);
+        this.ctx.binarySizeStatusBarEntry.hide(this.id);
     }
 }

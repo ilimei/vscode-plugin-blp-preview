@@ -103,6 +103,10 @@ export default class MpqArchive {
     if (!block) {
       return null;
     }
+    // 空文件
+    if(block.compressedSize === 0) {
+      return new Uint8Array(0);
+    }
     const blpBuffer = Buffer.alloc(block.compressedSize);
     await FsPromise.read(this.fd, blpBuffer, 0, blpBuffer.length, this.headerOffset + block.offset);
     return block.decode(name, new Uint8Array(blpBuffer), this);
