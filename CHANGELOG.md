@@ -63,3 +63,6 @@ fix w3x explore bug
 
 [0.2.7]
 More Comprehensive Search for w3x Files
+
+[0.2.8]
+support extract mdx with textures
