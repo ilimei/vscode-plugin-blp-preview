@@ -6,6 +6,7 @@ import type BasePreview from './BasePreview';
 import BlpPreview from './blpPreview/BlpPreview';
 import W3EPreview from './mapPreview/W3EPreview';
 import MdxPreview from './modelPreview/MdxPreview';
+import SlkPreview from './slkPreview/SlkPreview';
 
 export default class EditorProvider implements vscode.CustomReadonlyEditorProvider {
 	public static readonly viewType = 'blpPreview.previewEditor';
@@ -28,6 +29,11 @@ export default class EditorProvider implements vscode.CustomReadonlyEditorProvid
 			case '.wav':
 			case '.mp3':
 				return new AudioPreview(this.extensionRoot, document.uri, webviewEditor, this.ctx);
+			case '.mmp':
+			case '.w3c':
+			case '.w3i':
+			case '.slk':
+				return new SlkPreview(this.extensionRoot, document.uri, webviewEditor, this.ctx);
 			default:
 				break;
 		}

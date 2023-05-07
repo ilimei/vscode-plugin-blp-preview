@@ -118,10 +118,25 @@ export default class Block {
       }
     }
 
-    return Uint8Array.from(out.reduce((acc, curr) => {
-      acc.push(...curr);
-      return acc;
-    }, []));
+    function merge(arrays: Uint8Array[]) {
+      // 计算新数组的总长度
+      const totalLength = arrays.reduce((acc, curr) => acc + curr.length, 0);
+
+      // 创建新的 Uint8Array 对象
+      const mergedArray = new Uint8Array(totalLength);
+
+      // 将原始数组的内容复制到新数组中
+      let offset = 0;
+      for (let i = 0; i < arrays.length; i++) {
+        mergedArray.set(arrays[i], offset);
+        offset += arrays[i].length;
+      }
+
+      // 返回合并后的数组
+      return mergedArray;
+    }
+
+    return merge(out);
   }
 
   decompressSector(name: string, bytes: Uint8Array, decompressedSize: number): Uint8Array {

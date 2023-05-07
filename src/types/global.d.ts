@@ -8,7 +8,13 @@ declare const message: Message;
 declare global {
     interface Window {
         message: Message;
-        
+        currentResourceURI: {
+            external: string;
+            fsPath: string;
+            path: string;
+            scheme: 'mpq' | 'w3x' | 'file'
+        };
+
         ModelViewer: {
             viewer: typeof Viewer;
             common: {

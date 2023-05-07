@@ -53,3 +53,10 @@ support mpq audio play
 
 [0.2.4]
 support w3x file explorer
+
+[0.2.5]
+support slk file viewer
+
+[0.2.6]
+support mmp,w3i,w3c file viewer
+fix w3x explore bug

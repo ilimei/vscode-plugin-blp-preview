@@ -35,8 +35,9 @@ export default class BasePreview extends Disposable {
     protected readonly id: string = `${Date.now()}-${Math.random().toString()}`;
 
     protected _previewState = ViewState.visible;
-    protected _imageBinarySize: number | undefined;
+    protected _imageBinarySize: number = 0;
     protected message: Message;
+    protected nonce = getNonce();
 
 
     constructor(
@@ -87,12 +88,10 @@ export default class BasePreview extends Disposable {
             }
         }));
 
-        if (resource.scheme === 'file') {
-            vscode.workspace.fs.stat(resource).then(({ size }) => {
-                this._imageBinarySize = size;
-                this.update();
-            });
-        }
+        this._register(this.message.onSizeChange(size => {
+            this._imageBinarySize = size;
+            this.update();
+        }));
 
         this.render();
         this.update();
@@ -148,7 +147,7 @@ export default class BasePreview extends Disposable {
             isMac: isMac(),
         };
 
-        const nonce = getNonce();
+        const nonce = this.nonce;
         const cspSource = this.webviewEditor.webview.cspSource;
 
         return /* html */`<!DOCTYPE html>
@@ -171,6 +170,7 @@ export default class BasePreview extends Disposable {
     <body class="container image scale-to-fit loading">
         ${this.getHTMLTempalte()}
         <script type="text/javascript" nonce="${nonce}">
+            window.currentResourceURI = ${JSON.stringify(this.resource)};
             window.module = {
                 exports: {},
             };

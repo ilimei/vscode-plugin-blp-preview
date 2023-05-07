@@ -38,9 +38,6 @@ export class MpqTreeProvider implements vscode.TreeDataProvider<MpqItemNode | Mp
         }
         if (!element) {
             await this.mpqManager.task;
-            // const data = await this.mpqManager.archives[1111].get('(listfile)');
-            console.info(this.mpqManager.archives);
-
             return this.mpqManager.archives.map(v => {
                 return new MpqNode(v.name, v, vscode.TreeItemCollapsibleState.Collapsed);
             });

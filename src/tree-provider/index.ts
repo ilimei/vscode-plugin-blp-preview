@@ -2,7 +2,6 @@ import path from 'path';
 import fs from 'fs';
 import * as vscode from 'vscode';
 import { Uri } from 'vscode';
-import EditorProvider from '../custom-editor/EditorProvider';
 import { BlpPreviewContext } from "../extension";
 import { localize } from '../localize';
 import MpqManager from '../mpq-manager';
@@ -40,15 +39,5 @@ export function registerTreeProvider(context: vscode.ExtensionContext, ctx: BlpP
                 return vscode.window.showInformationMessage(localize("blpPreview.extractSuccess", "extract success"));
             }
         });
-    }));
-    
-    context.subscriptions.push(vscode.commands.registerCommand('blpPreview.openW3X', (uri: Uri) => {
-        if (['.mdx', '.blp', '.tga', '.wav', '.mp3'].includes(path.extname(uri.path).toLowerCase())) {
-            // https://code.visualstudio.com/api/references/commands
-            // https://vshaxe.github.io/vscode-extern/vscode/TextDocumentShowOptions.html#preview
-            vscode.commands.executeCommand('vscode.openWith', uri, EditorProvider.viewType, { preview: true });
-        } else {
-            vscode.window.showTextDocument(uri);
-        }
     }));
 }
