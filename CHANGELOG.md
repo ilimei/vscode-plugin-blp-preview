@@ -60,3 +60,6 @@ support slk file viewer
 [0.2.6]
 support mmp,w3i,w3c file viewer
 fix w3x explore bug
+
+[0.2.7]
+More Comprehensive Search for w3x Files
