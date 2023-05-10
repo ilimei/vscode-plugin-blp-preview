@@ -18,7 +18,7 @@
 	"activationEvents": [
 		"onCustomEditor:blpPreview.previewEditor",
 		"onView:blpPreview.mpqExplorer",
-		"onView:w3xExplorer",
+		"onView:blpPreview.w3xExplorer",
 		"onCommand:blpPreview.exploreW3XFile",
 		"onCommand:blpPreview.convert2png",
 		"onCommand:blpPreview.convert2jpg",
@@ -40,7 +40,7 @@
 		"views": {
 			"explorer": [
 				{
-					"id": "w3xExplorer",
+					"id": "blpPreview.w3xExplorer",
 					"name": "w3x Explorer"
 				}
 			],
@@ -121,7 +121,7 @@
 			"view/title": [
 				{
 					"command": "blpPreview.w3xExplorerClear",
-					"when": "view == w3xExplorer"
+					"when": "view == blpPreview.w3xExplorer"
 				}
 			],
 			"view/item/context": [
@@ -131,17 +131,17 @@
 				},
 				{
 					"command": "blpPreview.extractFile",
-					"when": "view == w3xExplorer && viewItem =~ /file$/i"
+					"when": "view == blpPreview.w3xExplorer && viewItem =~ /file$/i"
 				},
 				{
 					"command": "blpPreview.extractFileWithTexture",
-					"when": "view == w3xExplorer && viewItem == mdxFile"
+					"when": "view == blpPreview.w3xExplorer && viewItem == mdxFile"
 				}
 			],
 			"explorer/context": [
 				{
 					"command": "blpPreview.exploreW3XFile",
-					"when": "resourceExtname == .w3x"
+					"when": "resourceExtname == .w3x || resourceExtname == .w3m"
 				},
 				{
 					"when": "resourceExtname == .blp",

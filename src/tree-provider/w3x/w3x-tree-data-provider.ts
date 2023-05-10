@@ -1,11 +1,17 @@
+import path from 'path';
+import fs from 'fs';
 import * as vscode from 'vscode';
 import {
     EventEmitter, Event, Uri,
 } from 'vscode';
+import commandMap from '../../command/helper/commands';
+import { localize } from '../../localize';
 import { MpqItemNode } from '../mpq/mpq-item-node';
 import MpqTreeHelperNode from '../mpq/mpq-tree-helper-node';
 import { W3XModel } from './w3x-model';
 import { W3XRoot } from './w3x-root';
+import type { BlpPreviewContext } from '../../extension';
+import { makeFileSync } from '../../common/fs-helper';
 
 function helperNodeToMpqItemNodes(node: MpqTreeHelperNode) {
     return node.children.sort((a, b) => {
@@ -34,8 +40,58 @@ export class W3XTreeProvider implements vscode.TreeDataProvider<MpqItemNode | W3
 
     private model: W3XModel;
 
-    constructor() {
+    constructor(ctx: BlpPreviewContext) {
         this.clear();
+        this.registerCommands(ctx);
+    }
+
+    registerCommands(ctx: BlpPreviewContext) {
+        commandMap.set('blpPreview.exploreW3XFile', (uri: Uri) => {
+            this.openW3X(uri);
+        });
+        commandMap.set('blpPreview.w3xExplorerClear', (uri: Uri) => {
+            this.clear();
+        });
+        commandMap.set('blpPreview.extractFile', (node: MpqItemNode) => {
+            const resourcePath = node.node.rootUri.path.replace(/\\/g, '/');
+            vscode.window.showSaveDialog({
+                defaultUri: vscode.Uri.file(path.basename(resourcePath)),
+                title: localize('blpPreview.saveBlpFolder', 'Select'),
+                filters: {
+                    'w3xfiles': [path.extname(resourcePath).slice(1)]
+                },
+            }).then(async fileUri => {
+                if (fileUri) {
+                    ctx.edit.createFile(fileUri, { ignoreIfExists: true });
+                    fs.writeFileSync(fileUri.fsPath, await this.getBufferContent(node.node.rootUri));
+                    return vscode.window.showInformationMessage(localize("blpPreview.extractSuccess", "extract success"));
+                }
+            });
+        });
+        commandMap.set('blpPreview.extractFileWithTexture', (node: MpqItemNode) => {
+            const resourcePath = node.node.rootUri.path.replace(/\\/g, '/');
+            vscode.window.showSaveDialog({
+                defaultUri: vscode.Uri.file(path.basename(resourcePath)),
+                title: localize('blpPreview.saveBlpFolder', 'Select'),
+                filters: {
+                    'w3xfiles': ['mdx']
+                },
+            }).then(async fileUri => {
+                if (fileUri) {
+                    ctx.edit.createFile(fileUri, { ignoreIfExists: true });
+                    const ret = await this.extractMdxWithTextures(node.node.rootUri);
+                    if (!ret) return;
+                    fs.writeFileSync(fileUri.fsPath, Buffer.from(ret.model));
+                    for (let i = 0; i < ret.names.length; i++) {
+                        const distPath = fileUri.with({ path: path.dirname(fileUri.path) + '/' + ret.names[i].replace(/\\/g, '/') });
+                        makeFileSync(distPath.fsPath);
+                        ctx.edit.createFile(distPath, { ignoreIfExists: true });
+                        fs.writeFileSync(distPath.fsPath, ret.blps[i]);
+                    }
+                    return vscode.window.showInformationMessage(localize("blpPreview.extractSuccess", "extract success"));
+                }
+            });
+        });
     }
 
     public clear() {

@@ -37,9 +37,10 @@ export function activate(context: vscode.ExtensionContext) {
 		edit,
 	};
 
-	registerCommands(context, ctx);
 	registerCustomEditorProvider(context, ctx);
 	registerTreeProvider(context, ctx);
+	// register at the end, because treeProvider will register new commands
+	registerCommands(context, ctx);
 }
 
 // this method is called when your extension is deactivated

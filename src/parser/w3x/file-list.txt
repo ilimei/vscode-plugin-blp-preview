@@ -30,6 +30,8 @@ war3mapExtra.txt
 war3mapSkin.txt
 war3mapPreview.tga
 LoadingScreen.mdx
+callback
+wenhao_plugin.tag
 ReplaceableTextures\CommandButtons\BTNAbility_BackStab.blp
 ReplaceableTextures\CommandButtons\BTNAbility_Druid_Rake.blp
 ReplaceableTextures\CommandButtons\BTNAbility_Gouge.blp
