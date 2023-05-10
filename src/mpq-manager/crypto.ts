@@ -36,8 +36,11 @@ export default class MpqCrypto {
 
     name = name.toUpperCase();
 
-    for (let i = 0; i < name.length; i++) {
-      let ch = name.charCodeAt(i);
+    const encoder = new TextEncoder();
+    const chs = encoder.encode(name);
+
+    for (let i = 0; i < chs.length; i++) {
+      let ch = chs[i];
 
       seed1 = cryptTable[(key << 8) + ch] ^ (seed1 + seed2);
       seed2 = ch + seed1 + seed2 + (seed2 << 5) + 3;
