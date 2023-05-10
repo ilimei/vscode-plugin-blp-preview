@@ -172,7 +172,7 @@
 				"blpPreview.mpqLocation": {
 					"type": "string",
 					"default": "",
-					"description": "please set mpq file location use to show model texture."
+					"description": "%blpPreview.mpqLocation.desc%"
 				}
 			}
 		}

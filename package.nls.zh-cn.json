@@ -3,6 +3,7 @@
     "blpPreview.w3xExplorerClear": "清空",
     "blpPreview.extractFile": "提取文件",
     "blpPreview.extractFileWithTexture": "提取文件(包含贴图)",
+    "blpPreview.mpqLocation.desc": "选择war3.mpq文件路径用于展示模型的贴图",
     "blpPreview.extractSuccess": "提取成功",
     "blpPreview.convert2png": "转换成png",
     "blpPreview.convert2jpg": "转换成jpg",
