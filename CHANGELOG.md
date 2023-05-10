@@ -66,3 +66,7 @@ More Comprehensive Search for w3x Files
 
 [0.2.8]
 support extract mdx with textures
+
+[0.2.9]
+fix: unsupport unicode hash
+feat: support read reg get war3 path
