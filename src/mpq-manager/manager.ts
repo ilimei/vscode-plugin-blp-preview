@@ -5,14 +5,15 @@ import * as path from "path";
 
 export default class ArchiveManager {
     archives: MpqArchive[] = [];
-    task: Task<boolean> | null = null;
+    task: Task<boolean> = new Task();
+    isLoading = false;
 
     async load(mpqFilePath: string) {
-        if (this.task) {
+        if (this.isLoading) {
             await this.task;
             return;
         }
-        this.task = new Task();
+        this.isLoading = true;
         const root = path.dirname(mpqFilePath);
         const files = await FsPromise.readDir(root);
         this.archives = await Promise.all(files.filter(v => v.endsWith('.mpq')).map(async file => {

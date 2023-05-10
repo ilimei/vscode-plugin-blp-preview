@@ -27,4 +27,12 @@ export class W3XModel {
     async getBufferContent(uri: string): Promise<Uint8Array> {
         return await this._w3xRoots.find(v => uri.startsWith(v.sourceUri.fsPath.replace(/\\/g, '/')))?.getBufferContent(uri);
     }
+
+    async extractMdxWithTextures(uri: string): Promise<{
+        model: ArrayBuffer;
+        blps: Uint8Array[];
+        names: string[];
+    }> {
+        return await this._w3xRoots.find(v => uri.startsWith(v.sourceUri.fsPath.replace(/\\/g, '/')))?.extractMdxWithTextures(uri);
+    }
 }

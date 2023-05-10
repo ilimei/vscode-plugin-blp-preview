@@ -4,7 +4,7 @@ import { localize } from '../localize';
 import commandMap from "./helper/commands";
 import { mdx2mdl } from './helper/mdl2mdx';
 
-commandMap.set('blpPreview.convert2blp', async function (uri: vscode.Uri, selectURI: vscode.Uri[]) {
+commandMap.set('blpPreview.convert2mdl', async function (uri: vscode.Uri, selectURI: vscode.Uri[]) {
     try {
         const distPath = uri.with({ path: uri.path + '.mdl' });
         this.edit.createFile(distPath, { ignoreIfExists: true });

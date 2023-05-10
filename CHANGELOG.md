@@ -60,3 +60,13 @@ support slk file viewer
 [0.2.6]
 support mmp,w3i,w3c file viewer
 fix w3x explore bug
+
+[0.2.7]
+More Comprehensive Search for w3x Files
+
+[0.2.8]
+support extract mdx with textures
+
+[0.2.9]
+fix: unsupport unicode hash
+feat: support read reg get war3 path

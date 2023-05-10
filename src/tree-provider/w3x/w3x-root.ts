@@ -1,11 +1,15 @@
 import {
     window, Uri, TreeItem, TreeItemCollapsibleState, Command,
 } from 'vscode';
+import { parseMDX, generateMDX } from 'war3-model';
 import MpqArchive from '../../mpq-manager/archive';
 import MpqTreeHelperNode from '../mpq/mpq-tree-helper-node';
 import txt from 'raw-loader!./file-list.txt';
 import { IniFile } from '../../parser/ini';
 import SlkFile from '../../parser/slk';
+import War3MapW3d from '../../parser/w3d';
+import War3MapW3u from '../../parser/w3u';
+import War3MapW3i from '../../parser/w3i';
 
 export class W3XRoot extends TreeItem {
     private _mpq: MpqArchive;
@@ -18,8 +22,8 @@ export class W3XRoot extends TreeItem {
         public readonly command?: Command) {
         super(label, collapsibleState);
         try {
-            this._mpq = new MpqArchive(this._uri.fsPath);
-            this._promise = this._mpq.load(this._uri.fsPath, true);
+            this._mpq = MpqArchive.getByPath(this._uri.fsPath);
+            this._promise = this._mpq.promise;
         } catch (e) {
             window.showErrorMessage(e.toString());
         }
@@ -69,7 +73,34 @@ export class W3XRoot extends TreeItem {
                 continue;
             }
             root.addFile(name);
-            if ((name.toLowerCase().startsWith('units\\') || name.toLowerCase().startsWith('doodads\\')) && (name.endsWith('.txt') || name.endsWith('.slk'))) {
+            if ('war3map.w3i' === name) {
+                promises.push(mpq.get(name).then((data) => {
+                    const w3i = new War3MapW3i();
+                    w3i.load(data);
+                    if (w3i.loadingScreenModel) {
+                        addMdl(w3i.loadingScreenModel);
+                    }
+                }));
+            } else if (['war3map.w3d', 'war3map.w3b', 'war3map.w3u'].includes(name)) {
+                promises.push(mpq.get(name).then((data) => {
+                    const w3d = ['war3map.w3b', 'war3map.w3u'].includes(name) ? new War3MapW3u() : new War3MapW3d();
+                    w3d.load(data);
+                    w3d.originalTable.objects.forEach(obj => {
+                        obj.modifications.forEach(mod => {
+                            if (typeof mod.value === 'string' && (mod.value.endsWith('.mdl') || mod.value.endsWith('.mdx'))) {
+                                addMdl(mod.value);
+                            }
+                        });
+                    });
+                    w3d.customTable.objects.forEach(obj => {
+                        obj.modifications.forEach(mod => {
+                            if (typeof mod.value === 'string' && (mod.value.endsWith('.mdl') || mod.value.endsWith('.mdx'))) {
+                                addMdl(mod.value);
+                            }
+                        });
+                    });
+                }));
+            } else if (name.endsWith('.txt') || name.endsWith('.slk')) {
                 promises.push(mpq.get(name).then((data) => {
                     const content = Buffer.from(data).toString();
                     if (name.endsWith('.txt')) {
@@ -77,7 +108,7 @@ export class W3XRoot extends TreeItem {
                         ini.load(content);
                         ini.sections.forEach((section) => {
                             for (const [key, value] of section) {
-                                if (value.endsWith('.blp')) {
+                                if (value.endsWith('.blp') || value.endsWith('.tga')) {
                                     if (!mpq.has(value)) {
                                         continue;
                                     }
@@ -123,6 +154,25 @@ export class W3XRoot extends TreeItem {
         const name = uri.slice(this._uri.path.length);
         await this._promise;
         return await this._mpq.get(name);
+    }
+
+    async extractMdxWithTextures(uri: string) {
+        const name = uri.slice(this._uri.path.length);
+        await this._promise;
+        const data = await this._mpq.get(name);
+        const model = parseMDX(data.buffer);
+        const names: string[] = [];
+        const pms = model.Textures.filter(tex => {
+            return this._mpq.has(tex.Image);
+        }).map(tex => {
+            const orign = tex.Image;
+            tex.Image = 'textures\\' + orign.split(/\\/g).pop();
+            names.push(tex.Image);
+            return this._mpq.get(orign);
+        });
+
+        const blps = await Promise.all(pms);
+        return { model: generateMDX(model), blps, names };
     }
 
     contextValue = 'w3x';
