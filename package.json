@@ -19,7 +19,7 @@
 		"onCustomEditor:blpPreview.previewEditor",
 		"onView:blpPreview.mpqExplorer",
 		"onView:w3xExplorer",
-		"onCommand:zipexplorer.exploreW3XFile",
+		"onCommand:blpPreview.exploreW3XFile",
 		"onCommand:blpPreview.convert2png",
 		"onCommand:blpPreview.convert2jpg",
 		"onCommand:blpPreview.convert2blp",
