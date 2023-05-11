@@ -1,3 +1,5 @@
+import fs from 'fs';
+import path from 'path';
 import MpqArchive from '../../mpq-manager/archive';
 import txt from 'raw-loader!./file-list.txt';
 import War3MapW3i from '../w3i';
@@ -6,6 +8,7 @@ import War3MapW3d from '../w3d';
 import { IniFile } from '../ini';
 import SlkFile from '../slk';
 import Task from '../../common/task';
+import { makeFileSync } from '../../common/fs-helper';
 
 /**
  * Warcraft 3 map (W3X and W3M).
@@ -21,7 +24,7 @@ export default class War3Map {
 
     static cache: Map<string, War3Map> = new Map();
 
-    static getByPath(mpqFilePath: string) {
+    static getByPath(mpqFilePath: string): War3Map {
         if (this.cache[mpqFilePath]) {
             return this.cache[mpqFilePath];
         }
@@ -163,5 +166,17 @@ export default class War3Map {
     async get(name: string) {
         await this._mpq.promise;
         return this._mpq.get(name);
+    }
+
+    async extractTo(fsPath: string) {
+        const list = await this.getList();
+        for (let file of list) {
+            const buf = await this._mpq.get(file);
+            if (buf) {
+                const dist = path.join(fsPath, file);
+                makeFileSync(dist);
+                fs.writeFileSync(dist, buf);
+            }
+        }
     }
 }

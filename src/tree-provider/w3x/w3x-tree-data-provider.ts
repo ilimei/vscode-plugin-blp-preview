@@ -12,6 +12,7 @@ import { W3XModel } from './w3x-model';
 import { W3XRoot } from './w3x-root';
 import type { BlpPreviewContext } from '../../extension';
 import { makeFileSync } from '../../common/fs-helper';
+import War3Map from '../../parser/w3x';
 
 function helperNodeToMpqItemNodes(node: MpqTreeHelperNode) {
     return node.children.sort((a, b) => {
@@ -89,6 +90,27 @@ export class W3XTreeProvider implements vscode.TreeDataProvider<MpqItemNode | W3
                         fs.writeFileSync(distPath.fsPath, ret.blps[i]);
                     }
                     return vscode.window.showInformationMessage(localize("blpPreview.extractSuccess", "extract success"));
+                }
+            });
+        });
+        commandMap.set('blpPreview.extractAll', (uri: Uri) => {
+            vscode.window.showOpenDialog({
+                canSelectMany: false,
+                openLabel: localize('blpPreview.saveBlpFolder', 'Select'),
+                canSelectFiles: false,
+                canSelectFolders: true,
+            }).then(folders => {
+                if (folders && folders[0]) {
+                    vscode.window.withProgress({
+                        location: vscode.ProgressLocation.Window,
+                        title: 'extracting files to ' + folders[0].fsPath
+                    }, () => {
+                        return War3Map.getByPath(uri.fsPath).extractTo(folders[0].fsPath).then(() => {
+                            vscode.window.showInformationMessage('Extraction done!');
+                        }, err => {
+                            vscode.window.showErrorMessage(err.toString());
+                        });
+                    });
                 }
             });
         });

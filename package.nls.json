@@ -1,6 +1,7 @@
 {
     "blpPreview.exploreW3XFile": "explore w3x file",
     "blpPreview.w3xExplorerClear": "clear",
+    "blpPreview.extractAll": "extract all",
     "blpPreview.extractFile": "extract file",
     "blpPreview.extractFileWithTexture": "extract file with texture",
     "blpPreview.mpqLocation.desc": "please set mpq file location use to show model texture.",

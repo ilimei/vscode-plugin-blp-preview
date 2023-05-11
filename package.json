@@ -2,7 +2,7 @@
 	"name": "blp-preview",
 	"displayName": "blp-preview",
 	"description": "blp1 image preview, tag image preview, mdx model preview",
-	"version": "0.2.9",
+	"version": "0.3.0",
 	"publisher": "hugehardzhang",
 	"icon": "icon.png",
 	"engines": {
@@ -67,6 +67,11 @@
 		],
 		"commands": [
 			{
+				"command": "blpPreview.extractAll",
+				"title": "%blpPreview.extractAll%",
+				"category": "Blp Preview"
+			},
+			{
 				"command": "blpPreview.exploreW3XFile",
 				"title": "%blpPreview.exploreW3XFile%",
 				"category": "Blp Preview"
@@ -124,6 +129,16 @@
 					"when": "view == blpPreview.w3xExplorer"
 				}
 			],
+			"editor/title/context": [
+				{
+					"command": "blpPreview.exploreW3XFile",
+					"when": "resourceExtname == .w3x || resourceExtname == .w3m"
+				},
+				{
+					"command": "blpPreview.extractAll",
+					"when": "resourceExtname == .w3x || resourceExtname == .w3m"
+				}
+			],
 			"view/item/context": [
 				{
 					"command": "blpPreview.copyPath",
@@ -136,11 +151,19 @@
 				{
 					"command": "blpPreview.extractFileWithTexture",
 					"when": "view == blpPreview.w3xExplorer && viewItem == mdxFile"
+				},
+				{
+					"command": "blpPreview.extractAll",
+					"when": "view == blpPreview.w3xExplorer && viewItem == w3x"
 				}
 			],
 			"explorer/context": [
 				{
 					"command": "blpPreview.exploreW3XFile",
+					"when": "resourceExtname == .w3x || resourceExtname == .w3m"
+				},
+				{
+					"command": "blpPreview.extractAll",
 					"when": "resourceExtname == .w3x || resourceExtname == .w3m"
 				},
 				{

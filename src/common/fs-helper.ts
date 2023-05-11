@@ -18,7 +18,5 @@ export function makeDirSync(dir: string) {
 }
 
 export function makeFileSync(filename: string) {
-    if (!fs.existsSync(filename)) {
-        makeDirSync(path.dirname(filename));
-    }
+    fs.mkdirSync(path.dirname(filename), { recursive: true });
 }
