@@ -104,6 +104,16 @@
 				"category": "Blp Preview"
 			},
 			{
+				"command": "blpPreview.copyModel",
+				"title": "%blpPreview.copyModel%",
+				"category": "Blp Resource"
+			},
+			{
+				"command": "blpPreview.copyFile",
+				"title": "%blpPreview.copyFile%",
+				"category": "Blp Resource"
+			},
+			{
 				"command": "blpPreview.convert2png",
 				"title": "%blpPreview.convert2png%",
 				"category": "Blp Preview"
@@ -163,6 +173,14 @@
 				{
 					"command": "blpPreview.extractFileWithTexture",
 					"when": "view == blpPreview.w3xExplorer && viewItem == mdxFile"
+				},
+				{
+					"command": "blpPreview.copyModel",
+					"when": "view == blpPreview.w3xExplorer && viewItem == mdxFile"
+				},
+				{
+					"command": "blpPreview.copyFile",
+					"when": "view == blpPreview.w3xExplorer && viewItem =~ /file$/i"
 				},
 				{
 					"command": "blpPreview.extractAll",
@@ -251,6 +269,8 @@
 		"webpack-cli": "^4.7.0"
 	},
 	"dependencies": {
+		"temp-dir": "^1.0.0",
+		"fs-extra": "^11.1.1",
 		"pako": "^2.0.4",
 		"vscode-nls": "^5.2.0"
 	},
