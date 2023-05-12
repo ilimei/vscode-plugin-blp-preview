@@ -93,7 +93,7 @@ export default class War3Map {
                     if (w3i.loadingScreenModel) {
                         addMdl(w3i.loadingScreenModel);
                     }
-                }));
+                }, () => { }));
             } else if (['war3map.w3d', 'war3map.w3b', 'war3map.w3u'].includes(name)) {
                 promises.push(mpq.get(name).then((data) => {
                     const w3d = ['war3map.w3b', 'war3map.w3u'].includes(name) ? new War3MapW3u() : new War3MapW3d();
@@ -112,7 +112,7 @@ export default class War3Map {
                             }
                         });
                     });
-                }));
+                }, () => { }));
             } else if (name.endsWith('.txt') || name.endsWith('.slk')) {
                 promises.push(mpq.get(name).then((data) => {
                     const content = Buffer.from(data).toString();
@@ -145,7 +145,24 @@ export default class War3Map {
                             addMdl(value);
                         }
                     }
-                }));
+                }, () => { }));
+            } else if (name.endsWith('.j')) {
+                promises.push(mpq.get(name).then((data) => {
+                    const content = Buffer.from(data).toString();
+                    const ret = content.match(/"[^"]+\.(blp|tga|mdx|mp3|wav)"/g);
+                    if (ret) {
+                        ret.forEach((file) => {
+                            try {
+                                file = JSON.parse(file);
+                                if (!mpq.has(file)) {
+                                    return;
+                                }
+                                addFile(file);
+                            } catch (e) {
+                            }
+                        });
+                    }
+                }, () => { }));
             }
         }
         await Promise.all(promises);

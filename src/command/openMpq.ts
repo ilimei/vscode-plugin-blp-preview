@@ -9,7 +9,7 @@ commandMap.set('blpPreview.openMpq', async function (uri: vscode.Uri, selectURI:
     if (supportedFileExtensions.includes(path.extname(uri.path).toLowerCase())) {
         // https://code.visualstudio.com/api/references/commands
         // https://vshaxe.github.io/vscode-extern/vscode/TextDocumentShowOptions.html#preview
-        vscode.commands.executeCommand('vscode.openWith', uri, EditorProvider.viewType, { preview: true });
+        vscode.commands.executeCommand('vscode.openWith', uri, EditorProvider.viewType + '.forMpq', { preview: true });
     } else {
         vscode.window.showTextDocument(uri);
     }
@@ -19,7 +19,7 @@ commandMap.set('blpPreview.openW3X', (uri: vscode.Uri) => {
     if (supportedFileExtensions.includes(path.extname(uri.path).toLowerCase())) {
         // https://code.visualstudio.com/api/references/commands
         // https://vshaxe.github.io/vscode-extern/vscode/TextDocumentShowOptions.html#preview
-        vscode.commands.executeCommand('vscode.openWith', uri, EditorProvider.viewType, { preview: true });
+        vscode.commands.executeCommand('vscode.openWith', uri, EditorProvider.viewType + '.forMpq', { preview: true });
     } else {
         vscode.window.showTextDocument(uri);
     }

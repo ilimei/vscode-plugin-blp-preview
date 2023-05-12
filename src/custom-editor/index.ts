@@ -11,4 +11,10 @@ export function registerCustomEditorProvider(context: vscode.ExtensionContext, c
       retainContextWhenHidden: true,
     }
   }));
+  context.subscriptions.push(vscode.window.registerCustomEditorProvider(EditorProvider.viewType + '.forMpq', editorProvider, {
+    supportsMultipleEditorsPerDocument: false,
+    webviewOptions: {
+      retainContextWhenHidden: false,
+    }
+  }));
 }
