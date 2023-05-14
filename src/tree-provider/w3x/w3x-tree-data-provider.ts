@@ -11,8 +11,11 @@ import MpqTreeHelperNode from '../mpq/mpq-tree-helper-node';
 import { W3XModel } from './w3x-model';
 import { W3XRoot } from './w3x-root';
 import type { BlpPreviewContext } from '../../extension';
-import { makeFileSync } from '../../common/fs-helper';
+import { isWin, makeFileSync, tempFilePath,  } from '../../common/fs-helper';
 import War3Map from '../../parser/w3x';
+import { contentCopy } from '../../common/clipboard';
+
+export const tarnsPath = originPath => isWin ? originPath.slice(1) : originPath;
 
 function helperNodeToMpqItemNodes(node: MpqTreeHelperNode) {
     return node.children.sort((a, b) => {
@@ -52,6 +55,45 @@ export class W3XTreeProvider implements vscode.TreeDataProvider<MpqItemNode | W3
         });
         commandMap.set('blpPreview.w3xExplorerClear', (uri: Uri) => {
             this.clear();
+        });
+        commandMap.set('blpPreview.copyModel', async (node: MpqItemNode) => {
+            const nodePath = node.node.rootUri.path.replace(/^.+\.w3x\\/ig, '');
+            let ext = path.extname(nodePath).toLowerCase();
+            if (!['.mdx', ".mdl"].includes(ext)) { return; }
+
+            const tmpPath = tempFilePath(nodePath, ext);
+            const modelName = path.basename(nodePath.replace(/\\/g, "/"));
+
+            const ret = await this.extractMdxWithTextures(node.node.rootUri);
+            if (!ret) { return; }
+            fs.writeFileSync(tmpPath, Buffer.from(ret.model));
+
+            let map: { [fileName: string]: string } = {};
+            map[modelName] = tempFilePath(nodePath, ext);
+            for (let i = 0; i < ret.names.length; i++) {
+                const texture = ret.names[i];
+                let tmpPath = tempFilePath(texture, ext); 
+                map[texture.replace(/\\/g, "/")] = tmpPath;
+                fs.writeFileSync(tmpPath, ret.blps[i]);
+            }
+
+            contentCopy(map);
+        });
+        commandMap.set('blpPreview.copyFile', async (node: MpqItemNode) => {
+            const nodePath = node.node.rootUri.path.replace(/^.+\.w3x\\/ig, '');
+            if(!nodePath.trim()) {
+                return;
+            }
+            const ext = path.extname(nodePath).toLowerCase();
+
+            const tmpPath = tempFilePath(nodePath, ext);
+            const buffer = await this.getBufferContent(node.node.rootUri);
+            fs.writeFileSync(tmpPath, buffer);
+
+            const map: { [fileName: string]: string } = {};
+            const resourceName = path.basename(nodePath.replace(/\\/g, "/"));
+            map[resourceName] = tmpPath;
+            contentCopy(map);
         });
         commandMap.set('blpPreview.extractFile', (node: MpqItemNode) => {
             const resourcePath = node.node.rootUri.path.replace(/\\/g, '/');
@@ -132,7 +174,7 @@ export class W3XTreeProvider implements vscode.TreeDataProvider<MpqItemNode | W3
     }
 
     async getBufferContent(uri: vscode.Uri): Promise<Uint8Array> {
-        return this.model.getBufferContent(uri.path.slice(1));
+        return this.model.getBufferContent(tarnsPath(uri.path));
     }
 
     async extractMdxWithTextures(uri: vscode.Uri): Promise<{
@@ -140,7 +182,7 @@ export class W3XTreeProvider implements vscode.TreeDataProvider<MpqItemNode | W3
         blps: Uint8Array[];
         names: string[];
     }> {
-        return this.model.extractMdxWithTextures(uri.path.slice(1));
+        return this.model.extractMdxWithTextures(tarnsPath(uri.path));
     }
 
     async getChildren(element?: MpqItemNode | W3XRoot): Promise<Array<W3XRoot | MpqItemNode>> {

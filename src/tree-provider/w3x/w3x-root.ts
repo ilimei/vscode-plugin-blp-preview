@@ -4,6 +4,7 @@ import {
 import { parseMDX, generateMDX } from 'war3-model';
 import MpqTreeHelperNode from '../mpq/mpq-tree-helper-node';
 import War3Map from '../../parser/w3x';
+import { isWin } from '../../common/fs-helper';
 
 export class W3XRoot extends TreeItem {
     private _w3x: War3Map;
@@ -35,18 +36,19 @@ export class W3XRoot extends TreeItem {
     }
 
     async getTextContent(uri: string) {
-        const name = uri.slice(this._uri.path.length);
+        const name = uri.slice(this._uri.path.length + (isWin ? 0 : 1));
         const data = await this._w3x.get(name);
         return Buffer.from(data).toString();
     }
 
     async getBufferContent(uri: string) {
-        const name = uri.slice(this._uri.path.length);
+        // m1 上路径截取后会多一个斜杠
+        const name = uri.slice(this._uri.path.length + (isWin ? 0 : 1));
         return await this._w3x.get(name);
     }
 
     async extractMdxWithTextures(uri: string) {
-        const name = uri.slice(this._uri.path.length);
+        const name = uri.slice(this._uri.path.length + (isWin ? 0 : 1));
         const data = await this._w3x.get(name);
         const model = parseMDX(data.buffer);
         const names: string[] = [];
