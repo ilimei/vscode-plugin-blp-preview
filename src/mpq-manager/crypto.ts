@@ -30,17 +30,13 @@ export default class MpqCrypto {
   }
 
   hash(name: string, key: number) {
-    let cryptTable = this.cryptTable;
+    const cryptTable = this.cryptTable;
+    const buf = Buffer.from(name.toUpperCase());
     let seed1 = 0x7FED7FED;
     let seed2 = 0xEEEEEEEE;
 
-    name = name.toUpperCase();
-
-    const encoder = new TextEncoder();
-    const chs = encoder.encode(name);
-
-    for (let i = 0; i < chs.length; i++) {
-      let ch = chs[i];
+    for (let i = 0; i < buf.length; i++) {
+      let ch = buf[i];
 
       seed1 = cryptTable[(key << 8) + ch] ^ (seed1 + seed2);
       seed2 = ch + seed1 + seed2 + (seed2 << 5) + 3;

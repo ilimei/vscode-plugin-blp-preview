@@ -5,7 +5,6 @@ import * as fs from "fs";
  * The header can be on any 512 bytes boundry offset.
  */
 export function searchHeader(fd: number, fileSize: number) {
-  let offset = -1;
   const buf = Buffer.alloc(4);
 
   for (let i = 0, l = Math.ceil(fileSize / 512); i < l && i < 100; i++) {
@@ -17,7 +16,7 @@ export function searchHeader(fd: number, fileSize: number) {
     }
   }
 
-  return offset;
+  return -1;
 }
 
 /**

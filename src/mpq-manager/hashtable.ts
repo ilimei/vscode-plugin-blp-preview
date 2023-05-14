@@ -103,6 +103,7 @@ export default class MpqHashTable {
       let hash = entries[(i + offset) % l];
 
       if (nameA === hash.nameA && nameB === hash.nameB) {
+        hash.path = name;
         return hash;
       } else if (hash.blockIndex === 0xFFFFFFFF) {
         return null;

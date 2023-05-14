@@ -128,38 +128,42 @@ export default class War3MapW3i {
       this.forces[i] = force;
     }
 
-    for (let i = 0, l = stream.readInt32(); i < l; i++) {
-      const upgradeAvailabilityChange = new UpgradeAvailabilityChange();
-
-      upgradeAvailabilityChange.load(stream);
-
-      this.upgradeAvailabilityChanges[i] = upgradeAvailabilityChange;
-    }
-
-    for (let i = 0, l = stream.readInt32(); i < l; i++) {
-      const techAvailabilityChange = new TechAvailabilityChange();
-
-      techAvailabilityChange.load(stream);
-
-      this.techAvailabilityChanges[i] = techAvailabilityChange;
-    }
-
-    for (let i = 0, l = stream.readInt32(); i < l; i++) {
-      const randomUnitTable = new RandomUnitTable();
-
-      randomUnitTable.load(stream);
-
-      this.randomUnitTables[i] = randomUnitTable;
-    }
-
-    if (this.version > 24) {
+    try {
       for (let i = 0, l = stream.readInt32(); i < l; i++) {
-        const randomItemTable = new RandomItemTable();
+        const upgradeAvailabilityChange = new UpgradeAvailabilityChange();
 
-        randomItemTable.load(stream);
+        upgradeAvailabilityChange.load(stream);
 
-        this.randomItemTables[i] = randomItemTable;
+        this.upgradeAvailabilityChanges[i] = upgradeAvailabilityChange;
       }
+
+      for (let i = 0, l = stream.readInt32(); i < l; i++) {
+        const techAvailabilityChange = new TechAvailabilityChange();
+
+        techAvailabilityChange.load(stream);
+
+        this.techAvailabilityChanges[i] = techAvailabilityChange;
+      }
+
+      for (let i = 0, l = stream.readInt32(); i < l; i++) {
+        const randomUnitTable = new RandomUnitTable();
+
+        randomUnitTable.load(stream);
+
+        this.randomUnitTables[i] = randomUnitTable;
+      }
+
+      if (this.version > 24) {
+        for (let i = 0, l = stream.readInt32(); i < l; i++) {
+          const randomItemTable = new RandomItemTable();
+
+          randomItemTable.load(stream);
+
+          this.randomItemTables[i] = randomItemTable;
+        }
+      }
+    } catch (e) {
+      console.error(e);
     }
   }
 

@@ -9,6 +9,7 @@ export default class MpqHash {
   locale: number = 0xFFFF;
   platform: number = 0xFFFF;
   blockIndex: number = HASH_ENTRY_EMPTY;
+  path: string = '';
 
   load(bytes: Uint32Array) {
     let localePlatform = bytes[2];

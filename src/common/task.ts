@@ -7,6 +7,12 @@ export default class Task<T> implements Thenable<T> {
     private data: T;
     private reason: any;
 
+    static createTask<T>(fn: ()=> Promise<T>): Task<T> {
+        const task = new Task<T>();
+        fn().then(task.resolve.bind(task), task.reject.bind(task));
+        return task;
+    }
+
     constructor() {
         this.promise = new Promise<T>((resolve, reject) => {
             this._resolve = resolve;

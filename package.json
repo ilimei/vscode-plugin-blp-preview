@@ -2,7 +2,7 @@
 	"name": "blp-preview",
 	"displayName": "blp-preview",
 	"description": "blp1 image preview, tag image preview, mdx model preview",
-	"version": "0.2.9",
+	"version": "0.3.2",
 	"publisher": "hugehardzhang",
 	"icon": "icon.png",
 	"engines": {
@@ -17,9 +17,11 @@
 	],
 	"activationEvents": [
 		"onCustomEditor:blpPreview.previewEditor",
+		"onCustomEditor:blpPreview.previewEditor.forMpq",
 		"onView:blpPreview.mpqExplorer",
-		"onView:w3xExplorer",
-		"onCommand:zipexplorer.exploreW3XFile",
+		"onView:blpPreview.w3xExplorer",
+		"onCommand:blpPreview.exploreW3XFile",
+		"onCommand:blpPreview.extractAll",
 		"onCommand:blpPreview.convert2png",
 		"onCommand:blpPreview.convert2jpg",
 		"onCommand:blpPreview.convert2blp",
@@ -40,7 +42,7 @@
 		"views": {
 			"explorer": [
 				{
-					"id": "w3xExplorer",
+					"id": "blpPreview.w3xExplorer",
 					"name": "w3x Explorer"
 				}
 			],
@@ -63,9 +65,24 @@
 						"filenamePattern": "*.{blp,tga,mdx,mdl,w3e,slk,mmp,w3c}"
 					}
 				]
+			},
+			{
+				"viewType": "blpPreview.previewEditor.forMpq",
+				"displayName": "blp-preview for mqp",
+				"priority": "option",
+				"selector": [
+					{
+						"filenamePattern": "*.{blp,tga,mdx,mdl,w3e,slk,mmp,w3c}"
+					}
+				]
 			}
 		],
 		"commands": [
+			{
+				"command": "blpPreview.extractAll",
+				"title": "%blpPreview.extractAll%",
+				"category": "Blp Preview"
+			},
 			{
 				"command": "blpPreview.exploreW3XFile",
 				"title": "%blpPreview.exploreW3XFile%",
@@ -85,6 +102,16 @@
 				"command": "blpPreview.extractFileWithTexture",
 				"title": "%blpPreview.extractFileWithTexture%",
 				"category": "Blp Preview"
+			},
+			{
+				"command": "blpPreview.copyModel",
+				"title": "%blpPreview.copyModel%",
+				"category": "Blp Resource"
+			},
+			{
+				"command": "blpPreview.copyFile",
+				"title": "%blpPreview.copyFile%",
+				"category": "Blp Resource"
 			},
 			{
 				"command": "blpPreview.convert2png",
@@ -121,7 +148,17 @@
 			"view/title": [
 				{
 					"command": "blpPreview.w3xExplorerClear",
-					"when": "view == w3xExplorer"
+					"when": "view == blpPreview.w3xExplorer"
+				}
+			],
+			"editor/title/context": [
+				{
+					"command": "blpPreview.exploreW3XFile",
+					"when": "resourceExtname == .w3x || resourceExtname == .w3m"
+				},
+				{
+					"command": "blpPreview.extractAll",
+					"when": "resourceExtname == .w3x || resourceExtname == .w3m"
 				}
 			],
 			"view/item/context": [
@@ -131,17 +168,33 @@
 				},
 				{
 					"command": "blpPreview.extractFile",
-					"when": "view == w3xExplorer && viewItem =~ /file$/i"
+					"when": "view == blpPreview.w3xExplorer && viewItem =~ /file$/i"
 				},
 				{
 					"command": "blpPreview.extractFileWithTexture",
-					"when": "view == w3xExplorer && viewItem == mdxFile"
+					"when": "view == blpPreview.w3xExplorer && viewItem == mdxFile"
+				},
+				{
+					"command": "blpPreview.copyModel",
+					"when": "view == blpPreview.w3xExplorer && viewItem == mdxFile"
+				},
+				{
+					"command": "blpPreview.copyFile",
+					"when": "view == blpPreview.w3xExplorer && viewItem =~ /file$/i"
+				},
+				{
+					"command": "blpPreview.extractAll",
+					"when": "view == blpPreview.w3xExplorer && viewItem == w3x"
 				}
 			],
 			"explorer/context": [
 				{
 					"command": "blpPreview.exploreW3XFile",
-					"when": "resourceExtname == .w3x"
+					"when": "resourceExtname == .w3x || resourceExtname == .w3m"
+				},
+				{
+					"command": "blpPreview.extractAll",
+					"when": "resourceExtname == .w3x || resourceExtname == .w3m"
 				},
 				{
 					"when": "resourceExtname == .blp",
@@ -216,6 +269,8 @@
 		"webpack-cli": "^4.7.0"
 	},
 	"dependencies": {
+		"temp-dir": "^1.0.0",
+		"fs-extra": "^11.1.1",
 		"pako": "^2.0.4",
 		"vscode-nls": "^5.2.0"
 	},

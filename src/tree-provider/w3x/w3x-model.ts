@@ -21,11 +21,13 @@ export class W3XModel {
     }
 
     async getTextContent(uri: string): Promise<string> {
-        return await this._w3xRoots.find(v => uri.startsWith(v.sourceUri.fsPath.replace(/\\/g, '/')))?.getTextContent(uri);
+        const compareUri = uri.replace(/\\/g, '/');
+        return await this._w3xRoots.find(v => compareUri.startsWith(v.sourceUri.fsPath.replace(/\\/g, '/')))?.getTextContent(uri);
     }
 
     async getBufferContent(uri: string): Promise<Uint8Array> {
-        return await this._w3xRoots.find(v => uri.startsWith(v.sourceUri.fsPath.replace(/\\/g, '/')))?.getBufferContent(uri);
+        const compareUri = uri.replace(/\\/g, '/'); // 兼容 unix 路径比较
+        return await this._w3xRoots.find(v => compareUri.startsWith(v.sourceUri.fsPath.replace(/\\/g, '/')))?.getBufferContent(uri);
     }
 
     async extractMdxWithTextures(uri: string): Promise<{
@@ -33,6 +35,7 @@ export class W3XModel {
         blps: Uint8Array[];
         names: string[];
     }> {
-        return await this._w3xRoots.find(v => uri.startsWith(v.sourceUri.fsPath.replace(/\\/g, '/')))?.extractMdxWithTextures(uri);
+        const compareUri = uri.replace(/\\/g, '/');
+        return await this._w3xRoots.find(v => compareUri.startsWith(v.sourceUri.fsPath.replace(/\\/g, '/')))?.extractMdxWithTextures(uri);
     }
 }

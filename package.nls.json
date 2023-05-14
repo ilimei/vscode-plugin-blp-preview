@@ -1,8 +1,11 @@
 {
     "blpPreview.exploreW3XFile": "explore w3x file",
     "blpPreview.w3xExplorerClear": "clear",
+    "blpPreview.extractAll": "extract all",
     "blpPreview.extractFile": "extract file",
     "blpPreview.extractFileWithTexture": "extract file with texture",
+    "blpPreview.copyModel": "copy model and texture to clipboard",
+    "blpPreview.copyFile": "copy to clipboard",
     "blpPreview.mpqLocation.desc": "please set mpq file location use to show model texture.",
     "blpPreview.extractSuccess": "extract success",
     "blpPreview.convert2png": "convert to png",
