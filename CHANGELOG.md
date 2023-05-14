@@ -70,3 +70,12 @@ support extract mdx with textures
 [0.2.9]
 fix: unsupport unicode hash
 feat: support read reg get war3 path
+
+[0.3.0]
+fix bugs
+
+[0.3.1]
+fix bugs
+
+[0.3.2]
+power by DacianSky support mac
