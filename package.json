@@ -2,7 +2,7 @@
 	"name": "blp-preview",
 	"displayName": "blp-preview",
 	"description": "blp1 image preview, tag image preview, mdx model preview",
-	"version": "0.3.2",
+	"version": "0.3.3",
 	"publisher": "hugehardzhang",
 	"icon": "icon.png",
 	"engines": {
@@ -62,7 +62,7 @@
 				"priority": "default",
 				"selector": [
 					{
-						"filenamePattern": "*.{blp,tga,mdx,mdl,w3e,slk,mmp,w3c}"
+						"filenamePattern": "*.{blp,tga,mdx,w3e,slk,mmp,w3c}"
 					}
 				]
 			},
@@ -72,7 +72,7 @@
 				"priority": "option",
 				"selector": [
 					{
-						"filenamePattern": "*.{blp,tga,mdx,mdl,w3e,slk,mmp,w3c}"
+						"filenamePattern": "*.{blp,tga,mdx,w3e,slk,mmp,w3c}"
 					}
 				]
 			}
@@ -154,11 +154,11 @@
 			"editor/title/context": [
 				{
 					"command": "blpPreview.exploreW3XFile",
-					"when": "resourceExtname == .w3x || resourceExtname == .w3m"
+					"when": "resourceExtname == .w3x || resourceExtname == .w3m || resourceExtname == .mpq"
 				},
 				{
 					"command": "blpPreview.extractAll",
-					"when": "resourceExtname == .w3x || resourceExtname == .w3m"
+					"when": "resourceExtname == .w3x || resourceExtname == .w3m || resourceExtname == .mpq"
 				}
 			],
 			"view/item/context": [
@@ -190,11 +190,11 @@
 			"explorer/context": [
 				{
 					"command": "blpPreview.exploreW3XFile",
-					"when": "resourceExtname == .w3x || resourceExtname == .w3m"
+					"when": "resourceExtname == .w3x || resourceExtname == .w3m || resourceExtname == .mpq"
 				},
 				{
 					"command": "blpPreview.extractAll",
-					"when": "resourceExtname == .w3x || resourceExtname == .w3m"
+					"when": "resourceExtname == .w3x || resourceExtname == .w3m || resourceExtname == .mpq"
 				},
 				{
 					"when": "resourceExtname == .blp",
@@ -226,6 +226,31 @@
 					"type": "string",
 					"default": "",
 					"description": "%blpPreview.mpqLocation.desc%"
+				},
+				"blpPreview.convert2blp": {
+					"type": "boolean",
+					"default": false,
+					"description": "%blpPreview.convert2blp.desc%"
+				},
+				"blpPreview.convert2mdl": {
+					"type": "boolean",
+					"default": false,
+					"description": "%blpPreview.convert2mdl.desc%"
+				},
+				"blpPreview.convert2mdx": {
+					"type": "boolean",
+					"default": false,
+					"description": "%blpPreview.convert2mdx.desc%"
+				},
+				"blpPreview.convert2jpg": {
+					"type": "boolean",
+					"default": false,
+					"description": "%blpPreview.convert2jpg.desc%"
+				},
+				"blpPreview.convert2png": {
+					"type": "boolean",
+					"default": false,
+					"description": "%blpPreview.convert2png.desc%"
 				}
 			}
 		}
