@@ -5,6 +5,8 @@ import blp2Image from './helper/blp2img';
 import commandMap from "./helper/commands";
 
 commandMap.set('blpPreview.convert2jpg', async function (uri: vscode.Uri, selectURI: vscode.Uri[]) {
+    const data = vscode.workspace.getConfiguration("blpPreview");
+    const shouldReplaceExt = data && data.convert2jpg ? data.convert2jpg : false;
     if (selectURI.length > 1) {
         vscode.window.showOpenDialog({
             canSelectMany: false,
@@ -25,7 +27,7 @@ commandMap.set('blpPreview.convert2jpg', async function (uri: vscode.Uri, select
             }
         });
     } else {
-        const distPath = uri.with({ path: uri.path + '.jpg' });
+        const distPath = uri.with({ path: shouldReplaceExt ? uri.path.replace(/\.(blp)$/i, '.jpg') : uri.path + '.jpg' });
         this.edit.createFile(distPath, { ignoreIfExists: true });
         blp2Image(uri.fsPath, distPath.fsPath, 'jpg');
         await vscode.window.showInformationMessage(localize("blpPreview.convertSuccess", "convert success"));

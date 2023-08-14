@@ -79,3 +79,11 @@ fix bugs
 
 [0.3.2]
 power by DacianSky support mac
+
+[0.3.3]
+support convert config
+w3x explorer support mpq extention
+remove mdl file preview
+
+[0.3.4]
+support retainContextWhenHidden for model view
