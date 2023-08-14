@@ -2,7 +2,7 @@
 	"name": "blp-preview",
 	"displayName": "blp-preview",
 	"description": "blp1 image preview, tag image preview, mdx model preview",
-	"version": "0.3.4",
+	"version": "0.3.5",
 	"publisher": "hugehardzhang",
 	"icon": "icon.png",
 	"engines": {
@@ -23,6 +23,7 @@
 		"onCommand:blpPreview.exploreW3XFile",
 		"onCommand:blpPreview.extractAll",
 		"onCommand:blpPreview.convert2png",
+		"onCommand:blpPreview.convert2tga",
 		"onCommand:blpPreview.convert2jpg",
 		"onCommand:blpPreview.convert2blp",
 		"onCommand:blpPreview.convert2mdl",
@@ -119,6 +120,11 @@
 				"category": "Blp Preview"
 			},
 			{
+				"command": "blpPreview.convert2tga",
+				"title": "%blpPreview.convert2tga%",
+				"category": "Blp Preview"
+			},
+			{
 				"command": "blpPreview.convert2jpg",
 				"title": "%blpPreview.convert2jpg%",
 				"category": "Blp Preview"
@@ -209,6 +215,10 @@
 					"command": "blpPreview.convert2blp"
 				},
 				{
+					"when": "resourceExtname == .blp || resourceExtname == .png || resourceExtname == .jpg || resourceExtname == .jpeg",
+					"command": "blpPreview.convert2tga"
+				},
+				{
 					"when": "resourceExtname == .mdx",
 					"command": "blpPreview.convert2mdl"
 				},
@@ -256,6 +266,11 @@
 					"type": "boolean",
 					"default": false,
 					"description": "%blpPreview.convert2png.desc%"
+				},
+				"blpPreview.convert2tga": {
+					"type": "boolean",
+					"default": false,
+					"description": "%blpPreview.convert2tga.desc%"
 				}
 			}
 		}
@@ -299,9 +314,10 @@
 		"webpack-cli": "^4.7.0"
 	},
 	"dependencies": {
-		"temp-dir": "^1.0.0",
 		"fs-extra": "^11.1.1",
+		"image-wasm-for-war3": "^1.0.3",
 		"pako": "^2.0.4",
+		"temp-dir": "^1.0.0",
 		"vscode-nls": "^5.2.0"
 	},
 	"babel": {

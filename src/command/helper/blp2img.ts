@@ -1,27 +1,59 @@
 import * as fs from 'fs';
+import * as path from 'path';
+import { Blp1File, encode, decode, ImageType } from 'image-wasm-for-war3';
 
-let binding;
-// 简单的做了 win 和 darwin 判断
-if (process.platform.startsWith("win")) {
-    binding = eval("require")("../bind/win32-x64-binding.node");
-} else if(process.platform.startsWith("darwin")) {
-    // ! 编译的 M1 binding.node 进行 png 转换时崩溃; 先预加载就可以对 png 进行转换了。
-    eval("require")("../bind/darwin-arm64-binding-prepare.node");
-    binding = eval("require")("../bind/darwin-arm64-binding.node");
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention
-const { Image, TYPE_PNG, TYPE_JPEG, TYPE_BLP } = binding;
-
-export default function blp2Image(blpPath: string, distPath: string, type: 'png' | 'jpg' | 'blp' = 'png') {
-    const img = new Image();
+export default function blp2Image(blpPath: string, distPath: string, type: 'png' | 'jpg' | 'tga' | 'blp' = 'png') {
     const buf = fs.readFileSync(blpPath);
-    img.loadFromBuffer(buf, 0, buf.length);
-    if (type === 'png') {
-        fs.writeFileSync(distPath, img.toBuffer(TYPE_PNG));
-    } else if (type === 'blp') {
-        fs.writeFileSync(distPath, img.toBuffer(TYPE_BLP));
-    } else {
-        fs.writeFileSync(distPath, img.toBuffer(TYPE_JPEG));
+    let promise: Promise<{
+        width: number;
+        height: number;
+        buffer: ArrayBuffer;
+    }> | null = null;
+    const ext = path.extname(blpPath).toLowerCase();
+    console.info('ext', ext, Blp1File);
+    switch (ext) {
+        case '.blp':
+            promise = Blp1File.decode(buf.buffer).getMimapData(0);
+            break;
+        case '.png':
+            promise = decode(buf.buffer, ImageType.Png);
+            break;
+        case '.jpg':
+        case '.jpeg':
+            promise = decode(buf.buffer, ImageType.Jpeg);
+            break;
+        case '.tga':
+            promise = decode(buf.buffer, ImageType.Tga);
+            break;
+        default:
+            throw new Error('unknown file type');
     }
+    console.info('promise', promise);
+    promise.then((data) => {
+        console.info('data', data);
+        switch (type) {
+            case 'png':
+                encode(data.buffer, data.width, data.height, ImageType.Png).then((buf) => {
+                    fs.writeFileSync(distPath, Buffer.from(buf));
+                });
+                break;
+            case 'jpg':
+                encode(data.buffer, data.width, data.height, ImageType.Jpeg).then((buf) => {
+                    fs.writeFileSync(distPath, Buffer.from(buf));
+                });
+                break;
+            case 'tga':
+                encode(data.buffer, data.width, data.height, ImageType.Tga).then((buf) => {
+                    fs.writeFileSync(distPath, Buffer.from(buf));
+                });
+                break;
+            case 'blp':
+                Blp1File.encode(data).encode().then((buf) => {
+                    fs.writeFileSync(distPath, Buffer.from(buf));
+                });
+                break;
+            default:
+                throw new Error('unknown file type');
+        }
+    });
 }
