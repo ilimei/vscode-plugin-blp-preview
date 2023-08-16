@@ -1,54 +1,56 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { Blp1File, encode, decode, ImageType } from 'image-wasm-for-war3';
+import { Blp1File, encode, decode, ImageType, ImageRgba } from 'image-wasm-for-war3';
 
 export default function blp2Image(blpPath: string, distPath: string, type: 'png' | 'jpg' | 'tga' | 'blp' = 'png') {
     const buf = fs.readFileSync(blpPath);
-    let promise: Promise<{
-        width: number;
-        height: number;
-        buffer: ArrayBuffer;
-    }> | null = null;
+    let promise: Promise<ImageRgba> | null = null;
     const ext = path.extname(blpPath).toLowerCase();
-    console.info('ext', ext, Blp1File);
+
+    console.info(ext, type);
     switch (ext) {
         case '.blp':
-            promise = Blp1File.decode(buf.buffer).getMimapData(0);
+            try {
+                promise = decode(buf, ImageType.Blp1);
+            } catch (e) {
+                console.error(e);
+            }
             break;
         case '.png':
-            promise = decode(buf.buffer, ImageType.Png);
+            promise = decode(buf, ImageType.Png);
             break;
         case '.jpg':
         case '.jpeg':
-            promise = decode(buf.buffer, ImageType.Jpeg);
+            promise = decode(buf, ImageType.Jpeg);
             break;
         case '.tga':
-            promise = decode(buf.buffer, ImageType.Tga);
+            promise = decode(buf, ImageType.Tga);
             break;
         default:
             throw new Error('unknown file type');
     }
-    console.info('promise', promise);
-    promise.then((data) => {
-        console.info('data', data);
+
+    console.info(promise);
+    promise.then((img) => {
+        console.info(img);
         switch (type) {
             case 'png':
-                encode(data.buffer, data.width, data.height, ImageType.Png).then((buf) => {
+                encode(img, ImageType.Png).then((buf) => {
                     fs.writeFileSync(distPath, Buffer.from(buf));
                 });
                 break;
             case 'jpg':
-                encode(data.buffer, data.width, data.height, ImageType.Jpeg).then((buf) => {
+                encode(img, ImageType.Jpeg).then((buf) => {
                     fs.writeFileSync(distPath, Buffer.from(buf));
                 });
                 break;
             case 'tga':
-                encode(data.buffer, data.width, data.height, ImageType.Tga).then((buf) => {
+                encode(img, ImageType.Tga).then((buf) => {
                     fs.writeFileSync(distPath, Buffer.from(buf));
                 });
                 break;
             case 'blp':
-                Blp1File.encode(data).encode().then((buf) => {
+                encode(img, ImageType.Blp1).then((buf) => {
                     fs.writeFileSync(distPath, Buffer.from(buf));
                 });
                 break;

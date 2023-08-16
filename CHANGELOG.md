@@ -87,3 +87,14 @@ remove mdl file preview
 
 [0.3.4]
 support retainContextWhenHidden for model view
+
+[0.3.5]
+[0.3.6]
+[0.3.7]
+[0.3.8]
+[0.3.9]
+[0.4.0]
+support convert to tga
+
+[0.4.1]
+fix bugs
