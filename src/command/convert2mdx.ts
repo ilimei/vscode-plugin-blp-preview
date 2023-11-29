@@ -5,7 +5,7 @@ import commandMap from "./helper/commands";
 import { mdl2mdx } from './helper/mdl2mdx';
 
 commandMap.set('blpPreview.convert2mdx', async function (uri: vscode.Uri, selectURI: vscode.Uri[]) {
-    const data = vscode.workspace.getConfiguration("convert2mdx");
+    const data = vscode.workspace.getConfiguration("blpPreview");
     const shouldReplaceExt = data && data.convert2mdx ? data.convert2mdx : false;
 
     if (selectURI.length > 1) {
@@ -20,7 +20,8 @@ commandMap.set('blpPreview.convert2mdx', async function (uri: vscode.Uri, select
                     if (!uri.fsPath.toLocaleLowerCase().endsWith('.mdl')) {
                         continue;
                     }
-                    const distPath = folders[0].with({ path: folders[0].path + '/' + path.basename(uri.fsPath) + '.mdx' });
+                    const basename = shouldReplaceExt ? path.basename(uri.fsPath).replace(/\.(mdl)$/i, '') : path.basename(uri.fsPath);
+                    const distPath = folders[0].with({ path: folders[0].path + '/' + basename + '.mdx' });
                     this.edit.createFile(distPath, { ignoreIfExists: true });
                     mdl2mdx(uri.fsPath, distPath.fsPath);
                 }
