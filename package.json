@@ -2,7 +2,7 @@
 	"name": "blp-preview",
 	"displayName": "blp-preview",
 	"description": "blp1 image preview, tag image preview, mdx model preview",
-	"version": "0.3.4",
+	"version": "0.4.1",
 	"publisher": "hugehardzhang",
 	"icon": "icon.png",
 	"engines": {
@@ -23,6 +23,7 @@
 		"onCommand:blpPreview.exploreW3XFile",
 		"onCommand:blpPreview.extractAll",
 		"onCommand:blpPreview.convert2png",
+		"onCommand:blpPreview.convert2tga",
 		"onCommand:blpPreview.convert2jpg",
 		"onCommand:blpPreview.convert2blp",
 		"onCommand:blpPreview.convert2mdl",
@@ -119,6 +120,11 @@
 				"category": "Blp Preview"
 			},
 			{
+				"command": "blpPreview.convert2tga",
+				"title": "%blpPreview.convert2tga%",
+				"category": "Blp Preview"
+			},
+			{
 				"command": "blpPreview.convert2jpg",
 				"title": "%blpPreview.convert2jpg%",
 				"category": "Blp Preview"
@@ -197,16 +203,20 @@
 					"when": "resourceExtname == .w3x || resourceExtname == .w3m || resourceExtname == .mpq"
 				},
 				{
-					"when": "resourceExtname == .blp",
+					"when": "resourceExtname == .blp || resourceExtname == .tga",
 					"command": "blpPreview.convert2png"
 				},
 				{
-					"when": "resourceExtname == .blp",
+					"when": "resourceExtname == .blp || resourceExtname == .tga",
 					"command": "blpPreview.convert2jpg"
 				},
 				{
-					"when": "resourceExtname == .png || resourceExtname == .jpg || resourceExtname == .jpeg",
+					"when": "resourceExtname == .tga || resourceExtname == .png || resourceExtname == .jpg || resourceExtname == .jpeg",
 					"command": "blpPreview.convert2blp"
+				},
+				{
+					"when": "resourceExtname == .blp || resourceExtname == .png || resourceExtname == .jpg || resourceExtname == .jpeg",
+					"command": "blpPreview.convert2tga"
 				},
 				{
 					"when": "resourceExtname == .mdx",
@@ -256,6 +266,11 @@
 					"type": "boolean",
 					"default": false,
 					"description": "%blpPreview.convert2png.desc%"
+				},
+				"blpPreview.convert2tga": {
+					"type": "boolean",
+					"default": false,
+					"description": "%blpPreview.convert2tga.desc%"
 				}
 			}
 		}
@@ -284,29 +299,36 @@
 		"css-loader": "^6.7.3",
 		"eslint": "^7.27.0",
 		"file-loader": "^6.2.0",
+		"fs-extra": "^11.1.1",
 		"gl-matrix": "^3.3.0",
 		"glob": "^7.1.7",
 		"less-loader": "^11.1.0",
 		"mdx-m3-viewer": "^5.12.0",
 		"mini-css-extract-plugin": "^2.7.5",
 		"mocha": "^10.2.0",
+		"pako": "^2.0.4",
 		"raw-loader": "^4.0.2",
+		"temp-dir": "^1.0.0",
 		"ts-loader": "^9.2.2",
 		"typescript": "^4.3.2",
+		"vscode-nls": "^5.2.0",
 		"vscode-test": "^1.5.2",
 		"war3-model": "^2.2.1",
 		"webpack": "^5.38.1",
 		"webpack-cli": "^4.7.0"
 	},
 	"dependencies": {
-		"temp-dir": "^1.0.0",
-		"fs-extra": "^11.1.1",
-		"pako": "^2.0.4",
-		"vscode-nls": "^5.2.0"
+		"image-wasm-for-war3": "^2.0.0"
 	},
 	"babel": {
 		"presets": [
 			"@babel/preset-typescript"
 		]
-	}
+	},
+	"bundleDependencies": [
+		"fs-extra",
+		"image-wasm-for-war3",
+		"pako",
+		"temp-dir"
+	]
 }

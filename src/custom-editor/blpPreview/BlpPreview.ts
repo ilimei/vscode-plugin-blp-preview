@@ -29,7 +29,6 @@ export default class BlpPreview extends BasePreview {
     }
 
     onMessage(message: any): void {
-        super.onMessage(message);
         switch (message.type) {
             case 'size':
                 {
@@ -49,6 +48,8 @@ export default class BlpPreview extends BasePreview {
                     vscode.commands.executeCommand('vscode.openWith', this.resource, 'default', this.webviewEditor.viewColumn);
                     break;
                 }
+            default:
+                super.onMessage(message);
         }
     }
 

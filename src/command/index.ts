@@ -5,6 +5,7 @@ import commandMap from './helper/commands';
 
 import './copyPath';
 import './convert2png';
+import './convert2tga';
 import './convert2jpg';
 import './convert2blp';
 import './convert2mdx';
