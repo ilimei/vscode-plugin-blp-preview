@@ -19,7 +19,8 @@ commandMap.set('blpPreview.convert2blp', async function (uri: vscode.Uri, select
                     if (!uri.fsPath.toLocaleLowerCase().endsWith('.jpg') && !uri.fsPath.toLocaleLowerCase().endsWith('.png')) {
                         continue;
                     }
-                    const distPath = folders[0].with({ path: folders[0].path + '/' + path.basename(uri.fsPath) + '.blp' });
+                    const basename = shouldReplaceExt ? path.basename(uri.fsPath).replace(/\.(jpg|jpeg|png)$/i, '') : path.basename(uri.fsPath);
+                    const distPath = folders[0].with({ path: folders[0].path + '/' + basename + '.blp' });
                     this.edit.createFile(distPath, { ignoreIfExists: true });
                     blp2Image(uri.fsPath, distPath.fsPath, 'blp');
                 }
